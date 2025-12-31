@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Users } from "lucide-react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -44,10 +45,10 @@ const Navbar = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/auth")}>
               Log in
             </Button>
-            <Button variant="hero" size="sm">
+            <Button variant="hero" size="sm" onClick={() => navigate("/auth")}>
               Get Started
             </Button>
           </div>
@@ -87,10 +88,10 @@ const Navbar = () => {
                 Events
               </Link>
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                <Button variant="ghost" className="w-full justify-center">
+                <Button variant="ghost" className="w-full justify-center" onClick={() => navigate("/auth")}>
                   Log in
                 </Button>
-                <Button variant="hero" className="w-full justify-center">
+                <Button variant="hero" className="w-full justify-center" onClick={() => navigate("/auth")}>
                   Get Started
                 </Button>
               </div>
