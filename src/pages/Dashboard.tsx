@@ -19,7 +19,9 @@ import {
   MapPin,
   Clock,
   Loader2,
-  ChevronRight,
+  Sparkles,
+  TrendingUp,
+  ArrowRight,
 } from "lucide-react";
 import CreateClubModal from "@/components/CreateClubModal";
 import { useToast } from "@/hooks/use-toast";
@@ -55,7 +57,7 @@ interface Event {
 
 interface FeedItem {
   id: string;
-  type: "event" | "club" | "announcement";
+  type: "event" | "club";
   data: Event | Club;
   timestamp: string;
 }
@@ -71,6 +73,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [activeTab, setActiveTab] = useState<"feed" | "discover">("feed");
+  const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -89,7 +92,6 @@ const Dashboard = () => {
 
     setLoading(true);
     try {
-      // Fetch user's club memberships
       const { data: memberships } = await supabase
         .from("club_memberships")
         .select("club_id")
@@ -97,7 +99,6 @@ const Dashboard = () => {
 
       const memberClubIds = memberships?.map((m) => m.club_id) || [];
 
-      // Fetch my clubs
       if (memberClubIds.length > 0) {
         const { data: clubsData } = await supabase
           .from("clubs")
@@ -108,7 +109,6 @@ const Dashboard = () => {
         setMyClubs(clubsData || []);
       }
 
-      // Fetch all events with club info
       const { data: eventsData } = await supabase
         .from("events")
         .select("*, clubs(name, category)")
@@ -117,17 +117,14 @@ const Dashboard = () => {
 
       setUpcomingEvents(eventsData || []);
 
-      // Fetch all clubs for discover
       const { data: allClubs } = await supabase
         .from("clubs")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(20);
 
-      // Create feed items
       const feed: FeedItem[] = [];
 
-      // Add recent events to feed
       eventsData?.forEach((event) => {
         feed.push({
           id: `event-${event.id}`,
@@ -137,7 +134,6 @@ const Dashboard = () => {
         });
       });
 
-      // Add recent clubs to feed
       allClubs?.forEach((club) => {
         feed.push({
           id: `club-${club.id}`,
@@ -147,17 +143,11 @@ const Dashboard = () => {
         });
       });
 
-      // Sort by timestamp
       feed.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
       setFeedItems(feed);
     } catch (error) {
       console.error("Error fetching data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load feed.",
-        variant: "destructive",
-      });
     } finally {
       setLoading(false);
     }
@@ -176,18 +166,13 @@ const Dashboard = () => {
       if (error) throw error;
 
       toast({
-        title: "Joined!",
-        description: "You're now a member of this club.",
+        title: "🎉 Welcome to the club!",
+        description: "You're now a member.",
       });
 
       fetchData();
     } catch (error) {
       console.error("Error joining club:", error);
-      toast({
-        title: "Error",
-        description: "Failed to join club.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -204,46 +189,58 @@ const Dashboard = () => {
       if (error) throw error;
 
       toast({
-        title: "RSVP confirmed!",
-        description: "You're attending this event.",
+        title: "✅ You're in!",
+        description: "See you at the event.",
       });
 
       fetchData();
     } catch (error) {
       console.error("Error RSVPing:", error);
-      toast({
-        title: "Error",
-        description: "Failed to RSVP.",
-        variant: "destructive",
-      });
     }
+  };
+
+  const toggleLike = (itemId: string) => {
+    setLikedItems((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
+    });
   };
 
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center animate-pulse-ring">
+            <Users className="w-6 h-6 text-primary-foreground" />
+          </div>
+          <p className="text-sm text-muted-foreground">Loading your feed...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-muted/30">
       {/* Mobile Header */}
-      <header className="sticky top-0 z-50 bg-background border-b border-border md:hidden">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 md:hidden">
         <div className="flex items-center justify-between px-4 h-14">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Users className="w-4 h-4 text-primary-foreground" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-gradient-primary rounded-xl flex items-center justify-center shadow-sm">
+              <Users className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-lg font-bold">Clubly</span>
+            <span className="font-display text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              Clubly
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="relative">
               <Bell className="w-5 h-5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={signOut}>
-              <LogOut className="w-5 h-5" />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
             </Button>
           </div>
         </div>
@@ -251,54 +248,52 @@ const Dashboard = () => {
 
       <div className="flex">
         {/* Desktop Sidebar */}
-        <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 border-r border-border p-4">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+        <aside className="hidden md:flex flex-col w-72 h-screen sticky top-0 bg-background border-r border-border/50 p-5">
+          <div className="flex items-center gap-2.5 mb-10">
+            <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-md">
               <Users className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-xl font-bold">Clubly</span>
+            <span className="font-display text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              Clubly
+            </span>
           </div>
 
-          <nav className="flex-1 space-y-1">
-            <button
+          <nav className="flex-1 space-y-1.5">
+            <NavButton
+              icon={Home}
+              label="Feed"
+              active={activeTab === "feed"}
               onClick={() => setActiveTab("feed")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                activeTab === "feed"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <Home className="w-5 h-5" />
-              Feed
-            </button>
-            <button
+            />
+            <NavButton
+              icon={Search}
+              label="Discover"
+              active={activeTab === "discover"}
               onClick={() => setActiveTab("discover")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                activeTab === "discover"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <Search className="w-5 h-5" />
-              Discover
-            </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-              <Bell className="w-5 h-5" />
-              Notifications
-            </button>
+            />
+            <NavButton
+              icon={Bell}
+              label="Notifications"
+              badge={3}
+            />
+            <NavButton
+              icon={MessageCircle}
+              label="Messages"
+            />
           </nav>
 
-          <div className="pt-4 border-t border-border space-y-2">
+          <div className="pt-5 border-t border-border/50 space-y-3">
             <Button
-              className="w-full justify-start"
+              variant="gradient"
+              className="w-full"
               onClick={() => setShowCreateModal(true)}
             >
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4" />
               Create Club
             </Button>
             <Button
               variant="ghost"
-              className="w-full justify-start text-muted-foreground"
+              className="w-full justify-start text-muted-foreground hover:text-foreground"
               onClick={signOut}
             >
               <LogOut className="w-4 h-4 mr-2" />
@@ -308,129 +303,166 @@ const Dashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-h-screen">
+        <main className="flex-1 min-h-screen pb-20 md:pb-0">
           <div className="max-w-2xl mx-auto">
-            {/* My Clubs Horizontal Scroll */}
-            {myClubs.length > 0 && (
-              <div className="border-b border-border py-4">
-                <div className="px-4 mb-3 flex items-center justify-between">
-                  <h2 className="font-display text-sm font-semibold text-foreground">My Clubs</h2>
-                  <button className="text-xs text-primary font-medium">See all</button>
-                </div>
-                <div className="flex gap-3 px-4 overflow-x-auto scrollbar-hide">
-                  {/* Create Club Card */}
+            {/* Stories / My Clubs */}
+            <div className="py-5 border-b border-border/50">
+              <div className="px-4 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-4">
+                  {/* Create Club Story */}
                   <button
                     onClick={() => setShowCreateModal(true)}
-                    className="flex-shrink-0 flex flex-col items-center gap-2"
+                    className="flex-shrink-0 flex flex-col items-center gap-2 group"
                   >
-                    <div className="w-16 h-16 rounded-full border-2 border-dashed border-border flex items-center justify-center hover:border-primary hover:bg-primary/5 transition-colors">
-                      <Plus className="w-6 h-6 text-muted-foreground" />
+                    <div className="relative">
+                      <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center border-2 border-dashed border-border group-hover:border-primary group-hover:bg-primary/5 transition-all duration-300">
+                        <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                      </div>
                     </div>
-                    <span className="text-xs text-muted-foreground">Create</span>
+                    <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                      Create
+                    </span>
                   </button>
 
-                  {myClubs.map((club) => (
+                  {myClubs.map((club, index) => (
                     <button
                       key={club.id}
                       onClick={() => navigate(`/club/${club.id}`)}
-                      className="flex-shrink-0 flex flex-col items-center gap-2"
+                      className="flex-shrink-0 flex flex-col items-center gap-2 group animate-scale-in"
+                      style={{ animationDelay: `${index * 0.05}s` }}
                     >
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center ring-2 ring-primary ring-offset-2 ring-offset-background">
-                        <span className="text-lg font-bold text-primary-foreground">
-                          {club.name[0]}
-                        </span>
+                      <div className="relative">
+                        <div className="absolute -inset-0.5 ring-gradient rounded-full p-[2px]">
+                          <div className="w-[72px] h-[72px] rounded-full bg-background" />
+                        </div>
+                        <div className="relative w-[72px] h-[72px] rounded-full bg-gradient-primary flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300">
+                          <span className="text-xl font-bold text-primary-foreground">
+                            {club.name[0]}
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-xs text-foreground max-w-[64px] truncate">
+                      <span className="text-xs font-medium text-foreground max-w-[72px] truncate">
                         {club.name}
                       </span>
                     </button>
                   ))}
+
+                  {myClubs.length === 0 && (
+                    <div className="flex items-center gap-3 px-4 py-3 bg-secondary/50 rounded-2xl ml-2">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      <p className="text-sm text-muted-foreground">
+                        Join or create clubs to see them here
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* Upcoming Events Horizontal Scroll */}
+            {/* Upcoming Events Carousel */}
             {upcomingEvents.length > 0 && (
-              <div className="border-b border-border py-4">
-                <div className="px-4 mb-3 flex items-center justify-between">
-                  <h2 className="font-display text-sm font-semibold text-foreground">Upcoming Events</h2>
-                  <button className="text-xs text-primary font-medium">See all</button>
-                </div>
-                <div className="flex gap-3 px-4 overflow-x-auto scrollbar-hide pb-2">
-                  {upcomingEvents.slice(0, 5).map((event) => (
-                    <div
-                      key={event.id}
-                      className="flex-shrink-0 w-64 p-4 bg-card rounded-2xl border border-border hover:border-primary/30 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/club/${event.club_id}`)}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-10 h-10 bg-primary rounded-xl flex flex-col items-center justify-center text-primary-foreground">
-                          <span className="text-[8px] font-medium uppercase leading-none">
-                            {format(new Date(event.event_date), "MMM")}
-                          </span>
-                          <span className="text-sm font-bold leading-none">
-                            {format(new Date(event.event_date), "d")}
-                          </span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-muted-foreground truncate">
-                            {event.clubs?.name}
-                          </p>
-                          <h3 className="text-sm font-semibold text-foreground truncate">
-                            {event.title}
-                          </h3>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        {format(new Date(event.event_date), "h:mm a")}
-                        <span className={`ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                          event.event_type === "online"
-                            ? "bg-secondary text-secondary-foreground"
-                            : "bg-primary/10 text-primary"
-                        }`}>
-                          {event.event_type === "online" ? <Video className="w-2.5 h-2.5" /> : <MapPin className="w-2.5 h-2.5" />}
-                          {event.event_type}
-                        </span>
-                      </div>
+              <div className="py-5 border-b border-border/50">
+                <div className="px-4 mb-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <Calendar className="w-4 h-4 text-primary" />
                     </div>
-                  ))}
+                    <h2 className="font-display text-base font-semibold text-foreground">
+                      Upcoming Events
+                    </h2>
+                  </div>
+                  <button className="text-sm text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all">
+                    See all
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="px-4 overflow-x-auto scrollbar-hide">
+                  <div className="flex gap-3 pb-2">
+                    {upcomingEvents.slice(0, 5).map((event, index) => (
+                      <div
+                        key={event.id}
+                        className="flex-shrink-0 w-72 p-4 bg-card rounded-2xl border border-border/50 shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300 cursor-pointer interactive-card animate-slide-up opacity-0"
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                        onClick={() => navigate(`/club/${event.club_id}`)}
+                      >
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="w-14 h-14 bg-gradient-primary rounded-xl flex flex-col items-center justify-center text-primary-foreground shadow-sm">
+                            <span className="text-[10px] font-semibold uppercase leading-none opacity-90">
+                              {format(new Date(event.event_date), "MMM")}
+                            </span>
+                            <span className="text-xl font-bold leading-none mt-0.5">
+                              {format(new Date(event.event_date), "d")}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-muted-foreground mb-0.5">
+                              {event.clubs?.name}
+                            </p>
+                            <h3 className="text-sm font-semibold text-foreground leading-tight line-clamp-2">
+                              {event.title}
+                            </h3>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Clock className="w-3.5 h-3.5" />
+                            {format(new Date(event.event_date), "h:mm a")}
+                          </div>
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium ${
+                              event.event_type === "online"
+                                ? "bg-secondary text-secondary-foreground"
+                                : "bg-primary/10 text-primary"
+                            }`}
+                          >
+                            {event.event_type === "online" ? (
+                              <Video className="w-3 h-3" />
+                            ) : (
+                              <MapPin className="w-3 h-3" />
+                            )}
+                            {event.event_type}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Feed */}
-            <div className="py-4">
-              <div className="px-4 mb-4">
-                <h2 className="font-display text-sm font-semibold text-foreground">Activity Feed</h2>
+            <div className="py-5">
+              <div className="px-4 mb-5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-primary" />
+                  </div>
+                  <h2 className="font-display text-base font-semibold text-foreground">
+                    Activity Feed
+                  </h2>
+                </div>
               </div>
 
               {loading ? (
-                <div className="flex items-center justify-center py-20">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <div className="space-y-4 px-4">
+                  {[1, 2, 3].map((i) => (
+                    <SkeletonCard key={i} />
+                  ))}
                 </div>
               ) : feedItems.length === 0 ? (
-                <div className="px-4 py-20 text-center">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="font-display text-lg font-semibold mb-2">No activity yet</h3>
-                  <p className="text-muted-foreground mb-4">Create or join a club to see activity</p>
-                  <Button onClick={() => setShowCreateModal(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Your First Club
-                  </Button>
-                </div>
+                <EmptyState onCreateClub={() => setShowCreateModal(true)} />
               ) : (
                 <div className="space-y-4 px-4">
-                  {feedItems.map((item) => (
+                  {feedItems.map((item, index) => (
                     <FeedCard
                       key={item.id}
                       item={item}
+                      index={index}
                       onJoinClub={handleJoinClub}
                       onRsvp={handleRsvp}
                       onNavigate={navigate}
-                      currentUserId={user?.id}
+                      isLiked={likedItems.has(item.id)}
+                      onToggleLike={() => toggleLike(item.id)}
                     />
                   ))}
                 </div>
@@ -439,34 +471,45 @@ const Dashboard = () => {
           </div>
         </main>
 
-        {/* Right Sidebar - Suggestions */}
-        <aside className="hidden lg:block w-80 h-screen sticky top-0 p-4 border-l border-border">
-          <div className="mb-6">
-            <h3 className="font-display text-sm font-semibold text-foreground mb-3">Suggested Clubs</h3>
-            <div className="space-y-3">
+        {/* Right Sidebar */}
+        <aside className="hidden xl:block w-80 h-screen sticky top-0 p-5 border-l border-border/50 bg-background">
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-sm font-semibold text-foreground">
+                Trending Clubs
+              </h3>
+              <button className="text-xs text-primary font-medium">See all</button>
+            </div>
+            <div className="space-y-2">
               {feedItems
                 .filter((item) => item.type === "club")
                 .slice(0, 4)
-                .map((item) => {
+                .map((item, index) => {
                   const club = item.data as Club;
                   return (
                     <div
                       key={club.id}
-                      className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted transition-colors cursor-pointer"
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-all duration-200 cursor-pointer group animate-slide-up opacity-0"
+                      style={{ animationDelay: `${index * 0.1}s` }}
                       onClick={() => navigate(`/club/${club.id}`)}
                     >
-                      <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                      <div className="w-11 h-11 bg-gradient-primary rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
                         <span className="text-sm font-bold text-primary-foreground">
                           {club.name[0]}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{club.name}</p>
-                        <p className="text-xs text-muted-foreground">{club.member_count} members</p>
+                        <p className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                          {club.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {club.member_count} members
+                        </p>
                       </div>
                       <Button
                         size="sm"
                         variant="secondary"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleJoinClub(club.id);
@@ -479,46 +522,58 @@ const Dashboard = () => {
                 })}
             </div>
           </div>
+
+          {/* Quick Stats */}
+          <div className="p-4 bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl border border-primary/10">
+            <h4 className="font-display text-sm font-semibold text-foreground mb-3">
+              Your Activity
+            </h4>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="text-center p-3 bg-background rounded-xl">
+                <p className="text-2xl font-bold text-primary">{myClubs.length}</p>
+                <p className="text-xs text-muted-foreground">Clubs</p>
+              </div>
+              <div className="text-center p-3 bg-background rounded-xl">
+                <p className="text-2xl font-bold text-primary">{upcomingEvents.length}</p>
+                <p className="text-xs text-muted-foreground">Events</p>
+              </div>
+            </div>
+          </div>
         </aside>
       </div>
 
       {/* Mobile Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border md:hidden">
-        <div className="flex items-center justify-around h-14">
-          <button
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-xl border-t border-border/50 md:hidden safe-area-pb">
+        <div className="flex items-center justify-around h-16">
+          <MobileNavButton
+            icon={Home}
+            label="Feed"
+            active={activeTab === "feed"}
             onClick={() => setActiveTab("feed")}
-            className={`flex flex-col items-center gap-1 ${
-              activeTab === "feed" ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            <Home className="w-5 h-5" />
-            <span className="text-[10px]">Feed</span>
-          </button>
-          <button
+          />
+          <MobileNavButton
+            icon={Search}
+            label="Discover"
+            active={activeTab === "discover"}
             onClick={() => setActiveTab("discover")}
-            className={`flex flex-col items-center gap-1 ${
-              activeTab === "discover" ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            <Search className="w-5 h-5" />
-            <span className="text-[10px]">Discover</span>
-          </button>
+          />
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex flex-col items-center gap-1 text-primary"
+            className="relative -mt-6"
           >
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center -mt-4">
-              <Plus className="w-5 h-5 text-primary-foreground" />
+            <div className="w-14 h-14 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-transform">
+              <Plus className="w-6 h-6 text-primary-foreground" />
             </div>
           </button>
-          <button className="flex flex-col items-center gap-1 text-muted-foreground">
-            <Bell className="w-5 h-5" />
-            <span className="text-[10px]">Alerts</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-muted-foreground">
-            <Users className="w-5 h-5" />
-            <span className="text-[10px]">Profile</span>
-          </button>
+          <MobileNavButton
+            icon={Bell}
+            label="Alerts"
+            badge={3}
+          />
+          <MobileNavButton
+            icon={Users}
+            label="Profile"
+          />
         </div>
       </nav>
 
@@ -534,68 +589,176 @@ const Dashboard = () => {
   );
 };
 
+// Components
+
+const NavButton = ({
+  icon: Icon,
+  label,
+  active,
+  badge,
+  onClick,
+}: {
+  icon: React.ElementType;
+  label: string;
+  active?: boolean;
+  badge?: number;
+  onClick?: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+      active
+        ? "bg-primary text-primary-foreground shadow-sm"
+        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+    }`}
+  >
+    <Icon className="w-5 h-5" />
+    <span className="flex-1 text-left">{label}</span>
+    {badge && (
+      <span className="w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
+        {badge}
+      </span>
+    )}
+  </button>
+);
+
+const MobileNavButton = ({
+  icon: Icon,
+  label,
+  active,
+  badge,
+  onClick,
+}: {
+  icon: React.ElementType;
+  label: string;
+  active?: boolean;
+  badge?: number;
+  onClick?: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    className={`flex flex-col items-center gap-1 py-2 px-4 ${
+      active ? "text-primary" : "text-muted-foreground"
+    }`}
+  >
+    <div className="relative">
+      <Icon className="w-5 h-5" />
+      {badge && (
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+          {badge}
+        </span>
+      )}
+    </div>
+    <span className="text-[10px] font-medium">{label}</span>
+  </button>
+);
+
+const SkeletonCard = () => (
+  <div className="bg-card rounded-2xl border border-border/50 p-4 animate-pulse">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="w-11 h-11 bg-muted rounded-xl" />
+      <div className="flex-1">
+        <div className="h-4 bg-muted rounded w-32 mb-2" />
+        <div className="h-3 bg-muted rounded w-20" />
+      </div>
+    </div>
+    <div className="h-4 bg-muted rounded w-full mb-2" />
+    <div className="h-4 bg-muted rounded w-3/4" />
+  </div>
+);
+
+const EmptyState = ({ onCreateClub }: { onCreateClub: () => void }) => (
+  <div className="px-4 py-16 text-center">
+    <div className="w-20 h-20 bg-gradient-to-br from-primary/10 to-primary/20 rounded-3xl flex items-center justify-center mx-auto mb-5">
+      <Sparkles className="w-10 h-10 text-primary" />
+    </div>
+    <h3 className="font-display text-xl font-bold text-foreground mb-2">
+      Your feed is empty
+    </h3>
+    <p className="text-muted-foreground mb-6 max-w-xs mx-auto">
+      Create or join clubs to see activity from your communities
+    </p>
+    <Button variant="gradient" onClick={onCreateClub}>
+      <Plus className="w-4 h-4" />
+      Create Your First Club
+    </Button>
+  </div>
+);
+
 interface FeedCardProps {
   item: FeedItem;
+  index: number;
   onJoinClub: (clubId: string) => void;
   onRsvp: (eventId: string) => void;
   onNavigate: (path: string) => void;
-  currentUserId?: string;
+  isLiked: boolean;
+  onToggleLike: () => void;
 }
 
-const FeedCard = ({ item, onJoinClub, onRsvp, onNavigate, currentUserId }: FeedCardProps) => {
+const FeedCard = ({
+  item,
+  index,
+  onJoinClub,
+  onRsvp,
+  onNavigate,
+  isLiked,
+  onToggleLike,
+}: FeedCardProps) => {
   if (item.type === "event") {
     const event = item.data as Event;
     const eventDate = new Date(event.event_date);
 
     return (
-      <div className="bg-card rounded-2xl border border-border overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center gap-3 p-4">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+      <div
+        className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden animate-slide-up opacity-0"
+        style={{ animationDelay: `${index * 0.08}s` }}
+      >
+        <div className="flex items-center gap-3 p-4 pb-3">
+          <div className="w-11 h-11 bg-gradient-primary rounded-xl flex items-center justify-center shadow-sm">
             <Calendar className="w-5 h-5 text-primary-foreground" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground">{event.clubs?.name}</p>
+            <p className="text-sm font-semibold text-foreground">{event.clubs?.name}</p>
             <p className="text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(event.created_at), { addSuffix: true })}
             </p>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <MoreHorizontal className="w-4 h-4" />
+          <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground">
+            <MoreHorizontal className="w-5 h-5" />
           </Button>
         </div>
 
-        {/* Content */}
-        <div className="px-4 pb-3">
-          <h3 className="font-display text-lg font-semibold text-foreground mb-1">{event.title}</h3>
+        <div className="px-4 pb-4">
+          <h3 className="font-display text-lg font-bold text-foreground mb-1">
+            {event.title}
+          </h3>
           {event.description && (
-            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{event.description}</p>
+            <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+              {event.description}
+            </p>
           )}
-          
-          {/* Event Details Card */}
-          <div className="bg-muted rounded-xl p-3 mb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-primary rounded-xl flex flex-col items-center justify-center text-primary-foreground">
-                <span className="text-[10px] font-medium uppercase leading-none">
+
+          <div className="bg-muted/50 rounded-xl p-4 mb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-gradient-primary rounded-xl flex flex-col items-center justify-center text-primary-foreground shadow-sm">
+                <span className="text-[10px] font-semibold uppercase opacity-90">
                   {format(eventDate, "MMM")}
                 </span>
-                <span className="text-lg font-bold leading-none">
-                  {format(eventDate, "d")}
-                </span>
+                <span className="text-xl font-bold">{format(eventDate, "d")}</span>
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">
                   {format(eventDate, "EEEE")} at {format(eventDate, "h:mm a")}
                 </p>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                   {event.event_type === "online" ? (
                     <>
-                      <Video className="w-3 h-3" />
+                      <Video className="w-3.5 h-3.5" />
                       <span>Online Event</span>
                     </>
                   ) : (
                     <>
-                      <MapPin className="w-3 h-3" />
+                      <MapPin className="w-3.5 h-3.5" />
                       <span>{event.location}</span>
                     </>
                   )}
@@ -608,18 +771,22 @@ const FeedCard = ({ item, onJoinClub, onRsvp, onNavigate, currentUserId }: FeedC
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-1 px-4 pb-4">
-          <Button variant="ghost" size="sm" className="text-muted-foreground">
-            <Heart className="w-4 h-4 mr-1" />
+        <div className="flex items-center gap-2 px-4 pb-4 border-t border-border/50 pt-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`${isLiked ? "text-red-500" : "text-muted-foreground"}`}
+            onClick={onToggleLike}
+          >
+            <Heart className={`w-4 h-4 mr-1.5 ${isLiked ? "fill-current" : ""}`} />
             Like
           </Button>
           <Button variant="ghost" size="sm" className="text-muted-foreground">
-            <MessageCircle className="w-4 h-4 mr-1" />
+            <MessageCircle className="w-4 h-4 mr-1.5" />
             Comment
           </Button>
           <Button variant="ghost" size="sm" className="text-muted-foreground ml-auto">
-            <Share2 className="w-4 h-4 mr-1" />
+            <Share2 className="w-4 h-4 mr-1.5" />
             Share
           </Button>
         </div>
@@ -631,14 +798,17 @@ const FeedCard = ({ item, onJoinClub, onRsvp, onNavigate, currentUserId }: FeedC
     const club = item.data as Club;
 
     return (
-      <div className="bg-card rounded-2xl border border-border overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center gap-3 p-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary to-orange-400 rounded-xl flex items-center justify-center">
+      <div
+        className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden animate-slide-up opacity-0 cursor-pointer group"
+        style={{ animationDelay: `${index * 0.08}s` }}
+        onClick={() => onNavigate(`/club/${club.id}`)}
+      >
+        <div className="flex items-center gap-3 p-4 pb-3">
+          <div className="w-11 h-11 bg-gradient-primary rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
             <span className="text-sm font-bold text-primary-foreground">{club.name[0]}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground">New Club</p>
+            <p className="text-sm font-semibold text-foreground">New Club Created</p>
             <p className="text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(club.created_at), { addSuffix: true })}
             </p>
@@ -648,23 +818,29 @@ const FeedCard = ({ item, onJoinClub, onRsvp, onNavigate, currentUserId }: FeedC
           </span>
         </div>
 
-        {/* Content */}
-        <div
-          className="px-4 pb-4 cursor-pointer"
-          onClick={() => onNavigate(`/club/${club.id}`)}
-        >
-          <h3 className="font-display text-lg font-semibold text-foreground mb-1">{club.name}</h3>
+        <div className="px-4 pb-4">
+          <h3 className="font-display text-lg font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
+            {club.name}
+          </h3>
           {club.description && (
-            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{club.description}</p>
+            <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+              {club.description}
+            </p>
           )}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              <span className="font-semibold text-foreground">{club.member_count}</span> members
-            </span>
-            <Button size="sm" onClick={(e) => {
-              e.stopPropagation();
-              onJoinClub(club.id);
-            }}>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="w-4 h-4" />
+              <span>
+                <span className="font-semibold text-foreground">{club.member_count}</span> members
+              </span>
+            </div>
+            <Button
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onJoinClub(club.id);
+              }}
+            >
               Join Club
             </Button>
           </div>

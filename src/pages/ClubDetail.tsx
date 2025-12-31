@@ -70,7 +70,6 @@ const ClubDetail = () => {
 
     setLoading(true);
     try {
-      // Fetch club details
       const { data: clubData, error: clubError } = await supabase
         .from("clubs")
         .select("*")
@@ -85,7 +84,6 @@ const ClubDetail = () => {
 
       setClub(clubData);
 
-      // Check membership
       const { data: membershipData } = await supabase
         .from("club_memberships")
         .select("id")
@@ -95,7 +93,6 @@ const ClubDetail = () => {
 
       setIsMember(!!membershipData);
 
-      // Fetch events
       const { data: eventsData, error: eventsError } = await supabase
         .from("events")
         .select("*")
@@ -104,7 +101,6 @@ const ClubDetail = () => {
 
       if (eventsError) throw eventsError;
 
-      // Fetch RSVPs for each event
       const eventsWithRsvps = await Promise.all(
         (eventsData || []).map(async (event) => {
           const { count } = await supabase
@@ -154,7 +150,7 @@ const ClubDetail = () => {
       if (error) throw error;
 
       toast({
-        title: "RSVP confirmed!",
+        title: "✅ RSVP confirmed!",
         description: "You're attending this event.",
       });
 
@@ -163,7 +159,7 @@ const ClubDetail = () => {
       console.error("Error RSVPing:", error);
       toast({
         title: "Error",
-        description: "Failed to RSVP. Please try again.",
+        description: "Failed to RSVP.",
         variant: "destructive",
       });
     }
@@ -183,17 +179,12 @@ const ClubDetail = () => {
 
       toast({
         title: "RSVP cancelled",
-        description: "You are no longer attending this event.",
+        description: "You are no longer attending.",
       });
 
       fetchClubData();
     } catch (error) {
       console.error("Error cancelling RSVP:", error);
-      toast({
-        title: "Error",
-        description: "Failed to cancel RSVP.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -215,19 +206,18 @@ const ClubDetail = () => {
   const pastEvents = events.filter((e) => new Date(e.event_date) < new Date());
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <div className="min-h-screen bg-muted/30">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-              <ArrowLeft className="w-5 h-5 mr-2" />
+          <div className="flex items-center justify-between h-14">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
 
             {isMember && (
               <Button
-                variant="hero"
+                variant="gradient"
                 size="sm"
                 onClick={() => setShowCreateEventModal(true)}
               >
@@ -239,15 +229,14 @@ const ClubDetail = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        {/* Club Header */}
-        <div className="bg-card rounded-2xl border border-border p-6 mb-8">
+      <main className="container mx-auto px-4 py-8 max-w-3xl">
+        <div className="bg-card rounded-2xl border border-border/50 p-6 mb-8 shadow-sm">
           <div className="flex items-start justify-between mb-4">
             <span className="inline-block px-3 py-1 text-xs font-medium bg-secondary text-secondary-foreground rounded-full">
               {club.category}
             </span>
-            <div className="w-14 h-14 bg-gradient-hero rounded-2xl flex items-center justify-center shadow-soft">
-              <Users className="w-7 h-7 text-primary-foreground" />
+            <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-md">
+              <span className="text-2xl font-bold text-primary-foreground">{club.name[0]}</span>
             </div>
           </div>
           <h1 className="font-display text-3xl font-bold text-foreground mb-2">
@@ -262,13 +251,12 @@ const ClubDetail = () => {
           </div>
         </div>
 
-        {/* Upcoming Events */}
         <section className="mb-12">
-          <h2 className="font-display text-2xl font-bold text-foreground mb-6">
+          <h2 className="font-display text-xl font-bold text-foreground mb-6">
             Upcoming Events
           </h2>
           {upcomingEvents.length === 0 ? (
-            <div className="bg-card rounded-2xl border border-border p-8 text-center">
+            <div className="bg-card rounded-2xl border border-border/50 p-8 text-center">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <Calendar className="w-8 h-8 text-muted-foreground" />
               </div>
@@ -276,15 +264,10 @@ const ClubDetail = () => {
                 No upcoming events
               </h3>
               <p className="text-muted-foreground mb-4">
-                {isMember
-                  ? "Create an event to bring your community together!"
-                  : "No events scheduled yet."}
+                {isMember ? "Create an event!" : "No events scheduled."}
               </p>
               {isMember && (
-                <Button
-                  variant="hero"
-                  onClick={() => setShowCreateEventModal(true)}
-                >
+                <Button variant="gradient" onClick={() => setShowCreateEventModal(true)}>
                   <Plus className="w-4 h-4" />
                   Create Event
                 </Button>
@@ -305,19 +288,14 @@ const ClubDetail = () => {
           )}
         </section>
 
-        {/* Past Events */}
         {pastEvents.length > 0 && (
           <section>
-            <h2 className="font-display text-2xl font-bold text-foreground mb-6">
+            <h2 className="font-display text-xl font-bold text-foreground mb-6">
               Past Events
             </h2>
             <div className="space-y-4 opacity-60">
               {pastEvents.map((event) => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  isPast={true}
-                />
+                <EventCard key={event.id} event={event} isPast={true} />
               ))}
             </div>
           </section>
@@ -357,11 +335,10 @@ const EventCard = ({
   const eventDate = new Date(event.event_date);
 
   return (
-    <div className="p-5 bg-card rounded-2xl border border-border hover:border-primary/30 transition-all duration-300">
+    <div className="p-5 bg-card rounded-2xl border border-border/50 shadow-sm">
       <div className="flex flex-col md:flex-row md:items-center gap-4">
-        {/* Date Badge */}
-        <div className="flex-shrink-0 w-16 h-16 bg-gradient-hero rounded-xl flex flex-col items-center justify-center text-primary-foreground shadow-soft">
-          <span className="text-xs font-medium uppercase">
+        <div className="flex-shrink-0 w-16 h-16 bg-gradient-primary rounded-xl flex flex-col items-center justify-center text-primary-foreground shadow-sm">
+          <span className="text-xs font-semibold uppercase">
             {format(eventDate, "MMM")}
           </span>
           <span className="font-display text-xl font-bold">
@@ -369,7 +346,6 @@ const EventCard = ({
           </span>
         </div>
 
-        {/* Event Details */}
         <div className="flex-grow">
           <div className="flex items-center gap-2 mb-1">
             <span
@@ -414,13 +390,12 @@ const EventCard = ({
           </div>
         </div>
 
-        {/* Actions */}
         {!isPast && (
           <div className="flex items-center gap-2">
             {event.hasRsvp ? (
               <>
                 <Button variant="outline" size="sm" onClick={onCancelRsvp}>
-                  Cancel RSVP
+                  Cancel
                 </Button>
                 <Button size="sm" onClick={onEnterChat}>
                   <MessageCircle className="w-4 h-4 mr-1" />

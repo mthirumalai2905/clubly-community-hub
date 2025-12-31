@@ -82,7 +82,6 @@ const CreateEventModal = ({
 
       if (eventError) throw eventError;
 
-      // Auto RSVP the creator
       await supabase.from("event_rsvps").insert({
         event_id: event.id,
         user_id: user.id,
@@ -90,11 +89,10 @@ const CreateEventModal = ({
       });
 
       toast({
-        title: "Event created!",
+        title: "🎉 Event created!",
         description: `${title} is now scheduled.`,
       });
 
-      // Reset form
       setTitle("");
       setDescription("");
       setEventType("online");
@@ -108,7 +106,7 @@ const CreateEventModal = ({
       console.error("Error creating event:", error);
       toast({
         title: "Error",
-        description: "Failed to create event. Please try again.",
+        description: "Failed to create event.",
         variant: "destructive",
       });
     } finally {
@@ -225,7 +223,7 @@ const CreateEventModal = ({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" variant="hero" disabled={isLoading}>
+            <Button type="submit" variant="gradient" disabled={isLoading}>
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (

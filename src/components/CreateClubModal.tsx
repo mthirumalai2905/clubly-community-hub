@@ -43,7 +43,7 @@ interface CreateClubModalProps {
 const CreateClubModal = ({ open, onClose, onSuccess }: CreateClubModalProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -64,7 +64,6 @@ const CreateClubModal = ({ open, onClose, onSuccess }: CreateClubModalProps) => 
 
     setIsLoading(true);
     try {
-      // Create the club
       const { data: club, error: clubError } = await supabase
         .from("clubs")
         .insert({
@@ -78,7 +77,6 @@ const CreateClubModal = ({ open, onClose, onSuccess }: CreateClubModalProps) => 
 
       if (clubError) throw clubError;
 
-      // Add creator as admin member
       const { error: membershipError } = await supabase
         .from("club_memberships")
         .insert({
@@ -90,11 +88,10 @@ const CreateClubModal = ({ open, onClose, onSuccess }: CreateClubModalProps) => 
       if (membershipError) throw membershipError;
 
       toast({
-        title: "Club created!",
-        description: `${name} is now live. Start inviting members!`,
+        title: "🎉 Club created!",
+        description: `${name} is now live.`,
       });
 
-      // Reset form
       setName("");
       setDescription("");
       setCategory("");
@@ -103,7 +100,7 @@ const CreateClubModal = ({ open, onClose, onSuccess }: CreateClubModalProps) => 
       console.error("Error creating club:", error);
       toast({
         title: "Error",
-        description: "Failed to create club. Please try again.",
+        description: "Failed to create club.",
         variant: "destructive",
       });
     } finally {
@@ -162,7 +159,7 @@ const CreateClubModal = ({ open, onClose, onSuccess }: CreateClubModalProps) => 
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" variant="hero" disabled={isLoading}>
+            <Button type="submit" variant="gradient" disabled={isLoading}>
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
