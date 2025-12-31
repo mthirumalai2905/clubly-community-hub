@@ -3,28 +3,54 @@ import { Users, Twitter, Github, Linkedin } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-card border-t border-border">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-background border-t border-border">
+      <div className="w-full px-4 md:px-8 lg:px-12 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Brand */}
-          <div className="md:col-span-1">
+          <div className="col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 bg-gradient-hero rounded-xl flex items-center justify-center shadow-soft">
-                <Users className="w-5 h-5 text-primary-foreground" />
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <Users className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-display text-xl font-semibold text-foreground">
+              <span className="font-display text-lg font-bold text-foreground">
                 Clubly
               </span>
             </Link>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Where real communities meet. Building meaningful connections through clubs and events.
+            <p className="text-sm text-muted-foreground max-w-xs mb-4">
+              Where real communities meet. Build meaningful connections through clubs and events.
             </p>
+            <div className="flex items-center gap-2">
+              <a
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              >
+                <Twitter className="w-4 h-4" />
+              </a>
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              >
+                <Github className="w-4 h-4" />
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              >
+                <Linkedin className="w-4 h-4" />
+              </a>
+            </div>
           </div>
 
           {/* Product */}
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Product</h4>
-            <ul className="space-y-3">
+            <h4 className="font-display font-semibold text-foreground mb-3 text-sm">Product</h4>
+            <ul className="space-y-2">
               <li>
                 <Link to="/#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Features
@@ -32,7 +58,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/#clubs" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Explore Clubs
+                  Clubs
                 </Link>
               </li>
               <li>
@@ -40,21 +66,16 @@ const Footer = () => {
                   Events
                 </Link>
               </li>
-              <li>
-                <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Pricing
-                </Link>
-              </li>
             </ul>
           </div>
 
           {/* Company */}
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Company</h4>
-            <ul className="space-y-3">
+            <h4 className="font-display font-semibold text-foreground mb-3 text-sm">Company</h4>
+            <ul className="space-y-2">
               <li>
                 <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  About Us
+                  About
                 </Link>
               </li>
               <li>
@@ -67,31 +88,21 @@ const Footer = () => {
                   Careers
                 </Link>
               </li>
-              <li>
-                <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Contact
-                </Link>
-              </li>
             </ul>
           </div>
 
           {/* Legal */}
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Legal</h4>
-            <ul className="space-y-3">
+            <h4 className="font-display font-semibold text-foreground mb-3 text-sm">Legal</h4>
+            <ul className="space-y-2">
               <li>
                 <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Privacy Policy
+                  Privacy
                 </Link>
               </li>
               <li>
                 <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link to="/cookies" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Cookie Policy
+                  Terms
                 </Link>
               </li>
             </ul>
@@ -99,36 +110,10 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="mt-12 pt-6 border-t border-border">
           <p className="text-sm text-muted-foreground">
             © 2025 Clubly. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
-            <a
-              href="https://twitter.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-            >
-              <Twitter className="w-5 h-5" />
-            </a>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-            >
-              <Github className="w-5 h-5" />
-            </a>
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-            >
-              <Linkedin className="w-5 h-5" />
-            </a>
-          </div>
         </div>
       </div>
     </footer>
