@@ -26,7 +26,7 @@ const Auth = () => {
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   const { signUp, signIn, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -62,7 +62,7 @@ const Auth = () => {
           if (error.message.includes("already registered")) {
             toast({
               title: "Account exists",
-              description: "This email is already registered. Please sign in instead.",
+              description: "This email is already registered.",
               variant: "destructive",
             });
           } else {
@@ -74,8 +74,8 @@ const Auth = () => {
           }
         } else {
           toast({
-            title: "Welcome to Clubly!",
-            description: "Your account has been created successfully.",
+            title: "🎉 Welcome to Clubly!",
+            description: "Your account has been created.",
           });
         }
       } else {
@@ -96,7 +96,7 @@ const Auth = () => {
         if (error) {
           toast({
             title: "Sign in failed",
-            description: "Invalid email or password. Please try again.",
+            description: "Invalid email or password.",
             variant: "destructive",
           });
         }
@@ -108,40 +108,40 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-hero relative overflow-hidden">
-        <div className="absolute inset-0 bg-primary/20" />
-        <div className="relative z-10 flex flex-col justify-center px-12 text-primary-foreground">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-primary-foreground/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <Users className="w-7 h-7" />
+      {/* Left Side */}
+      <div className="hidden lg:flex lg:w-1/2 bg-foreground relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent" />
+        <div className="relative z-10 flex flex-col justify-center px-16 text-background">
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
+              <Users className="w-6 h-6 text-primary-foreground" />
             </div>
             <span className="font-display text-3xl font-bold">Clubly</span>
           </div>
           <h1 className="font-display text-5xl font-bold mb-6 leading-tight">
             Where real
             <br />
-            communities meet
+            <span className="text-primary">communities</span> meet
           </h1>
-          <p className="text-xl opacity-90 max-w-md leading-relaxed">
-            Join thousands building meaningful connections through clubs and events. No algorithms, just real interactions.
+          <p className="text-xl text-background/70 max-w-md leading-relaxed">
+            Join thousands building meaningful connections through clubs and events.
           </p>
         </div>
-        
-        {/* Decorative elements */}
-        <div className="absolute bottom-20 right-20 w-64 h-64 bg-primary-foreground/10 rounded-full blur-3xl" />
-        <div className="absolute top-40 right-40 w-32 h-32 bg-accent/20 rounded-full blur-2xl" />
+
+        <div className="absolute bottom-20 right-20 w-64 h-64 bg-primary/20 rounded-full blur-3xl" />
+        <div className="absolute top-40 right-40 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
       </div>
 
-      {/* Right Side - Form */}
+      {/* Right Side */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-2 justify-center mb-8">
-            <div className="w-10 h-10 bg-gradient-hero rounded-xl flex items-center justify-center shadow-soft">
-              <Users className="w-6 h-6 text-primary-foreground" />
+          <div className="lg:hidden flex items-center gap-2 justify-center mb-10">
+            <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-md">
+              <Users className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-2xl font-semibold text-foreground">Clubly</span>
+            <span className="font-display text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              Clubly
+            </span>
           </div>
 
           <div className="text-center mb-8">
@@ -150,15 +150,15 @@ const Auth = () => {
             </h2>
             <p className="text-muted-foreground">
               {isSignUp
-                ? "Start building your community today"
-                : "Sign in to continue to your clubs"}
+                ? "Start building your community"
+                : "Sign in to continue"}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {isSignUp && (
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-foreground">Username</Label>
+                <Label htmlFor="username">Username</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
@@ -177,7 +177,7 @@ const Auth = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground">Email</Label>
+              <Label htmlFor="email">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -195,7 +195,7 @@ const Auth = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-foreground">Password</Label>
+              <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -214,7 +214,7 @@ const Auth = () => {
 
             <Button
               type="submit"
-              variant="hero"
+              variant="gradient"
               size="lg"
               className="w-full"
               disabled={isLoading}
