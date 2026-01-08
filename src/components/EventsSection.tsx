@@ -9,6 +9,8 @@ const events = [
     title: "Startup Pitch Night",
     club: "Tech Founders Hub",
     date: "Jan 15",
+    day: "15",
+    month: "Jan",
     time: "6:00 PM",
     type: "online",
     attendees: 48,
@@ -18,6 +20,8 @@ const events = [
     title: "Morning Trail Run",
     club: "Morning Run Crew",
     date: "Jan 12",
+    day: "12",
+    month: "Jan",
     time: "5:30 AM",
     type: "offline",
     location: "Central Park",
@@ -28,6 +32,8 @@ const events = [
     title: "Design Systems Workshop",
     club: "Design Systems",
     date: "Jan 18",
+    day: "18",
+    month: "Jan",
     time: "2:00 PM",
     type: "online",
     attendees: 67,
@@ -40,188 +46,140 @@ const EventsSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -30 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.5, ease: "easeOut" as const },
-    },
-  };
-
   return (
-    <section id="events" className="py-24 bg-background relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,hsl(var(--primary)/0.03),transparent_50%)]" />
-      
-      <div ref={ref} className="relative w-full px-4 md:px-8 lg:px-12">
+    <section id="events" className="py-20 md:py-28 bg-background">
+      <div ref={ref} className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.5 }}
+          className="max-w-2xl mb-12"
         >
-          <motion.span
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-full text-sm font-medium mb-6"
-          >
-            <Calendar className="w-4 h-4" />
-            Events
-          </motion.span>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-            Upcoming <span className="text-gradient">events</span>
+          <p className="text-sm font-medium text-primary mb-3">Events</p>
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight">
+            What's happening
+            <br />
+            <span className="text-muted-foreground">this week.</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Real-time events that bring communities together. RSVP and join live discussions.
-          </p>
         </motion.div>
 
         {/* Events List */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          className="space-y-4 mb-12 max-w-4xl mx-auto"
-        >
+        <div className="space-y-3 mb-10">
           {events.map((event, index) => {
             const fillPercentage = (event.attendees / event.spots) * 100;
             
             return (
               <motion.div
                 key={event.title}
-                variants={itemVariants}
-                whileHover={{ scale: 1.02, x: 8 }}
-                className="group flex flex-col md:flex-row md:items-center gap-5 p-5 bg-card rounded-2xl border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group flex flex-col md:flex-row md:items-center gap-4 p-4 bg-muted/30 hover:bg-muted/50 rounded-xl border border-transparent hover:border-border transition-all duration-200"
               >
                 {/* Date Badge */}
-                <motion.div
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  className="flex-shrink-0 w-16 h-16 bg-gradient-primary rounded-xl flex flex-col items-center justify-center text-primary-foreground shadow-lg"
-                >
-                  <span className="text-[10px] font-medium uppercase leading-none">
-                    {event.date.split(" ")[0]}
+                <div className="flex-shrink-0 w-14 h-14 bg-foreground rounded-xl flex flex-col items-center justify-center text-background">
+                  <span className="text-[10px] font-medium uppercase leading-none opacity-70">
+                    {event.month}
                   </span>
-                  <span className="font-display text-2xl font-bold leading-none mt-0.5">
-                    {event.date.split(" ")[1]}
+                  <span className="font-display text-xl font-bold leading-none">
+                    {event.day}
                   </span>
-                </motion.div>
+                </div>
 
                 {/* Event Details */}
                 <div className="flex-grow min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-sm text-muted-foreground font-medium">{event.club}</span>
-                    <motion.span
-                      whileHover={{ scale: 1.1 }}
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full ${
-                        event.type === "online"
-                          ? "bg-blue-500/10 text-blue-600"
-                          : "bg-green-500/10 text-green-600"
-                      }`}
-                    >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-xs text-muted-foreground">{event.club}</span>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-full ${
+                      event.type === "online"
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-green-100 text-green-700"
+                    }`}>
                       {event.type === "online" ? (
                         <>
-                          <Video className="w-3 h-3" />
+                          <Video className="w-2.5 h-2.5" />
                           Online
                         </>
                       ) : (
                         <>
-                          <MapPin className="w-3 h-3" />
+                          <MapPin className="w-2.5 h-2.5" />
                           In Person
                         </>
                       )}
-                    </motion.span>
+                    </span>
                   </div>
-                  <h3 className="font-display text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="font-display font-semibold text-foreground mb-1.5 group-hover:text-primary transition-colors">
                     {event.title}
                   </h3>
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4" />
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
                       {event.time}
                     </span>
                     {event.location && (
-                      <span className="flex items-center gap-1.5">
-                        <MapPin className="w-4 h-4" />
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
                         {event.location}
                       </span>
                     )}
-                    <span className="flex items-center gap-1.5">
-                      <Users className="w-4 h-4" />
-                      {event.attendees}/{event.spots} joined
+                    <span className="flex items-center gap-1">
+                      <Users className="w-3 h-3" />
+                      {event.attendees}/{event.spots}
                     </span>
                   </div>
                 </div>
 
                 {/* Progress & CTA */}
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-4">
                   {/* Progress Bar */}
-                  <div className="hidden md:block w-24">
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="hidden md:block w-20">
+                    <div className="h-1.5 bg-border rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={isInView ? { width: `${fillPercentage}%` } : {}}
-                        transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
+                        transition={{ duration: 0.8, delay: 0.3 + index * 0.1 }}
                         className={`h-full rounded-full ${
                           fillPercentage > 90
-                            ? "bg-gradient-to-r from-red-500 to-orange-500"
-                            : "bg-gradient-primary"
+                            ? "bg-red-500"
+                            : "bg-primary"
                         }`}
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1 text-center">
-                      {fillPercentage > 90 ? "Almost full!" : `${Math.round(fillPercentage)}% full`}
+                    <p className="text-[10px] text-muted-foreground mt-1 text-center">
+                      {fillPercentage > 90 ? "Almost full" : `${Math.round(fillPercentage)}% full`}
                     </p>
                   </div>
                   
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button
-                      variant="gradient"
-                      size="sm"
-                      className="shadow-glow"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate("/auth");
-                      }}
-                    >
-                      RSVP
-                    </Button>
-                  </motion.div>
+                  <Button
+                    size="sm"
+                    className="bg-foreground text-background hover:bg-foreground/90 text-xs h-8 px-4"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate("/auth");
+                    }}
+                  >
+                    RSVP
+                  </Button>
                 </div>
               </motion.div>
             );
           })}
-        </motion.div>
+        </div>
 
         {/* View All Button */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6 }}
-          className="text-center"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.5 }}
         >
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="outline"
-              size="lg"
-              className="group"
-              onClick={() => navigate("/auth")}
-            >
-              View All Events
-              <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </motion.div>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/auth")}
+          >
+            View all events
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
         </motion.div>
       </div>
     </section>

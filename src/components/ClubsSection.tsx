@@ -1,4 +1,4 @@
-import { Users, ArrowRight, Sparkles } from "lucide-react";
+import { Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
@@ -11,7 +11,8 @@ const clubs = [
     members: 342,
     description: "Weekly meetups for founders building the future",
     events: 3,
-    gradient: "from-orange-500 to-red-500",
+    initial: "TF",
+    color: "bg-orange-100 text-orange-600",
   },
   {
     name: "Campus Book Club",
@@ -19,7 +20,8 @@ const clubs = [
     members: 128,
     description: "Monthly reads and thoughtful discussions",
     events: 2,
-    gradient: "from-blue-500 to-indigo-500",
+    initial: "BC",
+    color: "bg-blue-100 text-blue-600",
   },
   {
     name: "Morning Run Crew",
@@ -27,7 +29,8 @@ const clubs = [
     members: 89,
     description: "5AM runs to start the day right",
     events: 5,
-    gradient: "from-green-500 to-teal-500",
+    initial: "MR",
+    color: "bg-green-100 text-green-600",
   },
   {
     name: "Design Systems",
@@ -35,7 +38,8 @@ const clubs = [
     members: 267,
     description: "Crafting consistent, scalable design systems",
     events: 1,
-    gradient: "from-purple-500 to-pink-500",
+    initial: "DS",
+    color: "bg-purple-100 text-purple-600",
   },
 ];
 
@@ -44,119 +48,75 @@ const ClubsSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: "easeOut" as const },
-    },
-  };
-
   return (
-    <section id="clubs" className="py-24 bg-muted/30 relative overflow-hidden">
-      {/* Background Decoration */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--primary)/0.05),transparent_50%)]" />
-      
-      <div ref={ref} className="relative w-full px-4 md:px-8 lg:px-12">
+    <section id="clubs" className="py-20 md:py-28 bg-muted/30">
+      <div ref={ref} className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
           className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12"
         >
-          <div>
-            <motion.span
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-full text-sm font-medium mb-6"
-            >
-              <Sparkles className="w-4 h-4" />
-              Discover
-            </motion.span>
-            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
-              Active <span className="text-gradient">clubs</span>
+          <div className="max-w-xl">
+            <p className="text-sm font-medium text-primary mb-3">Discover</p>
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight">
+              Communities you'll
+              <br />
+              <span className="text-muted-foreground">actually want to join.</span>
             </h2>
-            <p className="text-lg text-muted-foreground max-w-xl">
-              Join communities that match your interests. Every club is built around real interactions.
-            </p>
           </div>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="outline"
-              className="self-start md:self-auto group"
-              onClick={() => navigate("/auth")}
-            >
-              View All Clubs
-              <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </motion.div>
+          <Button
+            variant="outline"
+            className="self-start md:self-auto"
+            onClick={() => navigate("/auth")}
+          >
+            View all clubs
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
         </motion.div>
 
         {/* Clubs Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-5xl"
-        >
-          {clubs.map((club) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {clubs.map((club, index) => (
             <motion.div
               key={club.name}
-              variants={itemVariants}
-              whileHover={{ y: -8, scale: 1.01 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: index * 0.08 }}
               onClick={() => navigate("/auth")}
-              className="group relative p-6 bg-card rounded-2xl border border-border hover:border-primary/30 transition-all duration-300 cursor-pointer overflow-hidden"
+              className="group p-5 bg-background rounded-xl border border-border hover:border-primary/20 hover:shadow-md transition-all duration-200 cursor-pointer"
             >
-              {/* Hover Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
-              <div className="relative">
-                <div className="flex items-start justify-between mb-4">
-                  <motion.span
-                    whileHover={{ scale: 1.05 }}
-                    className="inline-block px-3 py-1.5 text-xs font-medium bg-secondary text-secondary-foreground rounded-full"
-                  >
-                    {club.category}
-                  </motion.span>
-                  <motion.div
-                    whileHover={{ rotate: 10 }}
-                    className={`w-12 h-12 bg-gradient-to-br ${club.gradient} rounded-xl flex items-center justify-center shadow-lg`}
-                  >
-                    <Users className="w-5 h-5 text-white" />
-                  </motion.div>
+              <div className="flex items-start gap-4">
+                <div className={`w-12 h-12 rounded-xl ${club.color} flex items-center justify-center font-semibold text-sm flex-shrink-0`}>
+                  {club.initial}
                 </div>
-
-                <h3 className="font-display text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                  {club.name}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-5">
-                  {club.description}
-                </p>
-
-                <div className="flex items-center gap-6 pt-4 border-t border-border">
-                  <span className="text-sm text-muted-foreground">
-                    <span className="font-semibold text-foreground">{club.members}</span> members
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    <span className="font-semibold text-primary">{club.events}</span> upcoming
-                  </span>
+                <div className="flex-grow min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-display font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                      {club.name}
+                    </h3>
+                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0">
+                      {club.category}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
+                    {club.description}
+                  </p>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Users className="w-3.5 h-3.5" />
+                      {club.members} members
+                    </span>
+                    <span>
+                      <span className="text-primary font-medium">{club.events}</span> upcoming events
+                    </span>
+                  </div>
                 </div>
               </div>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

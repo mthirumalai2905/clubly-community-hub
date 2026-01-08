@@ -1,8 +1,9 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Users, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import Logo from "@/components/Logo";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ const Navbar = () => {
     { label: "Features", id: "features" },
     { label: "Clubs", id: "clubs" },
     { label: "Events", id: "events" },
+    { label: "Pricing", id: "pricing" },
   ];
 
   return (
@@ -52,80 +54,63 @@ const Navbar = () => {
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-background/80 backdrop-blur-xl border-b border-border shadow-sm"
+            ? "bg-background/95 backdrop-blur-md border-b border-border/50"
             : "bg-transparent"
         }`}
       >
-        <div className="w-full px-4 md:px-8 lg:px-12">
-          <div className="flex items-center justify-between h-16">
+        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 md:h-18">
             {/* Logo */}
-            <motion.button
-              onClick={scrollToTop}
-              className="flex items-center gap-2.5 group"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <div className="relative w-9 h-9 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow">
-                <Users className="w-4.5 h-4.5 text-primary-foreground" />
-                <div className="absolute inset-0 bg-gradient-primary rounded-xl opacity-0 group-hover:opacity-50 blur-xl transition-opacity" />
-              </div>
-              <span className="font-display text-xl font-bold text-foreground">
-                Clubly
-              </span>
-            </motion.button>
+            <button onClick={scrollToTop} className="flex items-center group">
+              <Logo size="md" />
+            </button>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
-                <motion.button
+                <button
                   key={link.id}
                   onClick={() => scrollToSection(link.id)}
-                  className="relative px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium rounded-lg"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="relative px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
                 >
                   {link.label}
-                </motion.button>
+                </button>
               ))}
             </div>
 
             {/* CTA Buttons */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-sm font-medium"
+                className="text-sm font-medium h-9"
                 onClick={() => navigate("/auth")}
               >
-                Log in
+                Sign in
               </Button>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  variant="gradient"
-                  size="sm"
-                  className="text-sm font-medium shadow-glow"
-                  onClick={() => navigate("/auth")}
-                >
-                  Get Started
-                </Button>
-              </motion.div>
+              <Button
+                size="sm"
+                className="text-sm font-medium h-9 bg-foreground text-background hover:bg-foreground/90"
+                onClick={() => navigate("/auth")}
+              >
+                Get Started
+              </Button>
             </div>
 
             {/* Mobile Menu Button */}
-            <motion.button
-              className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+            <button
+              className="md:hidden p-2 -mr-2 rounded-lg hover:bg-muted/50 transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              whileTap={{ scale: 0.9 }}
             >
               {isMobileMenuOpen ? (
                 <X className="w-5 h-5" />
               ) : (
                 <Menu className="w-5 h-5" />
               )}
-            </motion.button>
+            </button>
           </div>
         </div>
       </motion.nav>
@@ -134,26 +119,26 @@ const Navbar = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 top-16 z-40 md:hidden bg-background/95 backdrop-blur-xl border-b border-border shadow-lg"
+            className="fixed inset-x-0 top-16 z-40 md:hidden bg-background border-b border-border"
           >
             <div className="px-4 py-4 space-y-1">
               {navLinks.map((link, index) => (
                 <motion.button
                   key={link.id}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: index * 0.05 }}
                   onClick={() => scrollToSection(link.id)}
-                  className="block w-full text-left px-4 py-3 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                  className="block w-full text-left px-3 py-2.5 text-base font-medium text-foreground hover:bg-muted/50 rounded-lg transition-colors"
                 >
                   {link.label}
                 </motion.button>
               ))}
-              <div className="pt-3 flex flex-col gap-2">
+              <div className="pt-4 flex flex-col gap-2 border-t border-border mt-2">
                 <Button
                   variant="ghost"
                   className="justify-start"
@@ -162,10 +147,10 @@ const Navbar = () => {
                     navigate("/auth");
                   }}
                 >
-                  Log in
+                  Sign in
                 </Button>
                 <Button
-                  variant="gradient"
+                  className="bg-foreground text-background hover:bg-foreground/90"
                   onClick={() => {
                     setIsMobileMenuOpen(false);
                     navigate("/auth");
