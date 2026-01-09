@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,8 +23,11 @@ import {
   Sparkles,
   TrendingUp,
   ArrowRight,
+  Settings,
 } from "lucide-react";
 import CreateClubModal from "@/components/CreateClubModal";
+import ProfileModal from "@/components/ProfileModal";
+import { AvatarDisplay } from "@/components/AvatarPicker";
 import { useToast } from "@/hooks/use-toast";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -64,6 +68,7 @@ interface FeedItem {
 
 const Dashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
+  const { profile } = useProfile();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -72,6 +77,7 @@ const Dashboard = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [activeTab, setActiveTab] = useState<"feed" | "discover">("feed");
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
 
@@ -237,11 +243,17 @@ const Dashboard = () => {
               Clubly
             </span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="w-5 h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
             </Button>
+            <AvatarDisplay
+              avatarUrl={profile?.avatar_url || null}
+              username={profile?.username}
+              size="sm"
+              onClick={() => setShowProfileModal(true)}
+            />
           </div>
         </div>
       </header>
@@ -282,7 +294,26 @@ const Dashboard = () => {
             />
           </nav>
 
-          <div className="pt-5 border-t border-border/50 space-y-3">
+          {/* Profile Section */}
+          <div className="pt-5 border-t border-border/50 space-y-4">
+            <button
+              onClick={() => setShowProfileModal(true)}
+              className="w-full flex items-center gap-3 p-2 -mx-2 rounded-xl hover:bg-muted/50 transition-colors group"
+            >
+              <AvatarDisplay
+                avatarUrl={profile?.avatar_url || null}
+                username={profile?.username}
+                size="md"
+              />
+              <div className="flex-1 text-left">
+                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {profile?.username || "User"}
+                </p>
+                <p className="text-xs text-muted-foreground">Edit profile</p>
+              </div>
+              <Settings className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            </button>
+            
             <Button
               variant="gradient"
               className="w-full"
@@ -573,6 +604,7 @@ const Dashboard = () => {
           <MobileNavButton
             icon={Users}
             label="Profile"
+            onClick={() => setShowProfileModal(true)}
           />
         </div>
       </nav>
@@ -584,6 +616,11 @@ const Dashboard = () => {
           setShowCreateModal(false);
           fetchData();
         }}
+      />
+      
+      <ProfileModal
+        open={showProfileModal}
+        onOpenChange={setShowProfileModal}
       />
     </div>
   );
