@@ -54,6 +54,7 @@ export type Database = {
           created_by: string
           description: string | null
           id: string
+          logo_url: string | null
           member_count: number
           name: string
           updated_at: string
@@ -65,6 +66,7 @@ export type Database = {
           created_by: string
           description?: string | null
           id?: string
+          logo_url?: string | null
           member_count?: number
           name: string
           updated_at?: string
@@ -76,11 +78,77 @@ export type Database = {
           created_by?: string
           description?: string | null
           id?: string
+          logo_url?: string | null
           member_count?: number
           name?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      event_requests: {
+        Row: {
+          club_id: string
+          created_at: string
+          description: string | null
+          event_date: string
+          event_type: string
+          id: string
+          location: string | null
+          max_attendees: number | null
+          meeting_link: string | null
+          rejection_reason: string | null
+          requested_by: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          club_id: string
+          created_at?: string
+          description?: string | null
+          event_date: string
+          event_type?: string
+          id?: string
+          location?: string | null
+          max_attendees?: number | null
+          meeting_link?: string | null
+          rejection_reason?: string | null
+          requested_by: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          club_id?: string
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          location?: string | null
+          max_attendees?: number | null
+          meeting_link?: string | null
+          rejection_reason?: string | null
+          requested_by?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_requests_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_rsvps: {
         Row: {
@@ -231,7 +299,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_approve_requests: {
+        Args: { _club_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_create_events: {
+        Args: { _club_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_manage_roles: {
+        Args: { _club_id: string; _user_id: string }
+        Returns: boolean
+      }
+      get_club_role: {
+        Args: { _club_id: string; _user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       club_role: "moderator" | "co_lead" | "elder" | "member"
