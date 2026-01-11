@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import ClubDetail from "./pages/ClubDetail";
 import EventChat from "./pages/EventChat";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/club/:clubId" element={<ClubDetail />} />
               <Route path="/event/:eventId/chat" element={<EventChat />} />
+              <Route path="/profile/:userId?" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

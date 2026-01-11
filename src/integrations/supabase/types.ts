@@ -270,27 +270,84 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          banner_url: string | null
+          bio: string | null
           created_at: string
           id: string
           updated_at: string
           user_id: string
           username: string
+          username_last_changed_at: string | null
         }
         Insert: {
           avatar_url?: string | null
+          banner_url?: string | null
+          bio?: string | null
           created_at?: string
           id?: string
           updated_at?: string
           user_id: string
           username: string
+          username_last_changed_at?: string | null
         }
         Update: {
           avatar_url?: string | null
+          banner_url?: string | null
+          bio?: string | null
           created_at?: string
           id?: string
           updated_at?: string
           user_id?: string
           username?: string
+          username_last_changed_at?: string | null
+        }
+        Relationships: []
+      }
+      user_activity: {
+        Row: {
+          activity_count: number
+          activity_date: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_count?: number
+          activity_date?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_count?: number
+          activity_date?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
         }
         Relationships: []
       }
@@ -315,6 +372,7 @@ export type Database = {
         Args: { _club_id: string; _user_id: string }
         Returns: string
       }
+      record_user_activity: { Args: never; Returns: undefined }
     }
     Enums: {
       club_role: "moderator" | "co_lead" | "elder" | "member"
