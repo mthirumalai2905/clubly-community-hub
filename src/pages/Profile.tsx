@@ -249,10 +249,17 @@ const Profile = () => {
               onBannerUpdate={handleBannerUpdate}
             />
 
-            {/* Content - Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 md:p-6">
+            {/* Content - Symmetrical Three Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 md:p-6">
+              {/* Left Sidebar - Stats */}
+              <div className="lg:col-span-3 order-2 lg:order-1">
+                <div className="sticky top-4">
+                  <ProfileStats stats={stats} />
+                </div>
+              </div>
+
               {/* Main Column - Activity & Events */}
-              <div className="lg:col-span-2 space-y-4">
+              <div className="lg:col-span-6 order-1 lg:order-2 space-y-4">
                 {/* Activity Heatmap */}
                 <ActivityHeatmap userId={profile.user_id} />
 
@@ -305,10 +312,69 @@ const Profile = () => {
                 </div>
               </div>
 
-              {/* Sidebar - Stats */}
-              <div className="lg:col-span-1">
-                <div className="sticky top-4">
-                  <ProfileStats stats={stats} />
+              {/* Right Sidebar - Additional Info */}
+              <div className="lg:col-span-3 order-3 space-y-4">
+                <div className="sticky top-4 space-y-4">
+                  {/* Quick Actions */}
+                  <div className="p-4 bg-card rounded-xl border border-border/50">
+                    <h3 className="font-display text-sm font-semibold text-foreground mb-3">
+                      Quick Actions
+                    </h3>
+                    <div className="space-y-2">
+                      {isOwnProfile && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full justify-start"
+                            onClick={() => setShowEditModal(true)}
+                          >
+                            <Settings className="w-4 h-4 mr-2" />
+                            Edit Profile
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full justify-start"
+                            onClick={() => setShowCreateClubModal(true)}
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Create Club
+                          </Button>
+                        </>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start text-muted-foreground"
+                        onClick={() => navigate("/dashboard")}
+                      >
+                        <Home className="w-4 h-4 mr-2" />
+                        Back to Feed
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Followers/Following Summary */}
+                  <div className="p-4 bg-card rounded-xl border border-border/50">
+                    <h3 className="font-display text-sm font-semibold text-foreground mb-3">
+                      Connections
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="text-center p-3 bg-muted/50 rounded-lg">
+                        <p className="font-display font-bold text-lg text-foreground">
+                          {stats.followersCount}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Followers</p>
+                      </div>
+                      <div className="text-center p-3 bg-muted/50 rounded-lg">
+                        <p className="font-display font-bold text-lg text-foreground">
+                          {stats.followingCount}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Following</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

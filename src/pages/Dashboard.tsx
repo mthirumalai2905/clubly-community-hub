@@ -171,6 +171,9 @@ const Dashboard = () => {
 
       if (error) throw error;
 
+      // Record activity for heatmap
+      await supabase.rpc("record_user_activity");
+
       toast({
         title: "🎉 Welcome to the club!",
         description: "You're now a member.",
@@ -193,6 +196,9 @@ const Dashboard = () => {
       });
 
       if (error) throw error;
+
+      // Record activity for heatmap
+      await supabase.rpc("record_user_activity");
 
       toast({
         title: "✅ You're in!",

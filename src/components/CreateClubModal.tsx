@@ -87,6 +87,9 @@ const CreateClubModal = ({ open, onClose, onSuccess }: CreateClubModalProps) => 
 
       if (membershipError) throw membershipError;
 
+      // Record activity for heatmap
+      await supabase.rpc("record_user_activity");
+
       toast({
         title: "🎉 Club created!",
         description: `${name} is now live.`,
