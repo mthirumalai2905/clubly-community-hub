@@ -88,6 +88,9 @@ const CreateEventModal = ({
         status: "attending",
       });
 
+      // Record activity for heatmap
+      await supabase.rpc("record_user_activity");
+
       toast({
         title: "🎉 Event created!",
         description: `${title} is now scheduled.`,
