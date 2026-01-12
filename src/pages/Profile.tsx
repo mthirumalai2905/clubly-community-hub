@@ -235,8 +235,8 @@ const Profile = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-h-screen">
-          <div className="max-w-4xl mx-auto">
+        <main className="flex-1 min-h-screen pb-20 md:pb-0">
+          <div className="max-w-3xl mx-auto">
             {/* Profile Header */}
             <ProfileHeader
               profile={profile}
@@ -249,45 +249,48 @@ const Profile = () => {
               onBannerUpdate={handleBannerUpdate}
             />
 
-            {/* Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 md:p-6">
-              {/* Left Column - Activity & Events */}
-              <div className="lg:col-span-2 space-y-6">
+            {/* Content - Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 md:p-6">
+              {/* Main Column - Activity & Events */}
+              <div className="lg:col-span-2 space-y-4">
                 {/* Activity Heatmap */}
                 <ActivityHeatmap userId={profile.user_id} />
 
                 {/* User's Events */}
-                <div className="bg-card rounded-xl border border-border/50 p-4">
-                  <div className="flex items-center gap-2 mb-4">
+                <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
+                  <div className="flex items-center gap-2 p-4 border-b border-border/50">
                     <Calendar className="w-4 h-4 text-primary" />
                     <h3 className="font-display text-sm font-semibold text-foreground">
                       Events Created
                     </h3>
+                    <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                      {userEvents.length}
+                    </span>
                   </div>
 
                   {userEvents.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <Calendar className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                    <div className="text-center py-10 text-muted-foreground">
+                      <Calendar className="w-10 h-10 mx-auto mb-2 opacity-40" />
                       <p className="text-sm">No events created yet</p>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="divide-y divide-border/50">
                       {userEvents.map((event) => (
                         <div
                           key={event.id}
-                          className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+                          className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors cursor-pointer"
                           onClick={() => navigate(`/club/${event.id}`)}
                         >
-                          <div>
-                            <p className="font-medium text-sm text-foreground">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm text-foreground truncate">
                               {event.title}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-muted-foreground mt-0.5">
                               {event.clubs?.name} • {format(new Date(event.event_date), "MMM d, yyyy")}
                             </p>
                           </div>
                           <span
-                            className={`text-xs px-2 py-1 rounded-full ${
+                            className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 ml-3 ${
                               event.event_type === "online"
                                 ? "bg-secondary text-secondary-foreground"
                                 : "bg-primary/10 text-primary"
@@ -302,9 +305,11 @@ const Profile = () => {
                 </div>
               </div>
 
-              {/* Right Column - Stats */}
+              {/* Sidebar - Stats */}
               <div className="lg:col-span-1">
-                <ProfileStats stats={stats} />
+                <div className="sticky top-4">
+                  <ProfileStats stats={stats} />
+                </div>
               </div>
             </div>
           </div>

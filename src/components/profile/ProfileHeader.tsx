@@ -1,10 +1,11 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Camera, Edit2, Loader2, UserPlus, UserMinus } from "lucide-react";
+import { Camera, Edit2, Loader2, UserPlus, UserMinus, CalendarDays, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AvatarDisplay } from "@/components/AvatarPicker";
 import { UserProfile, UserStats } from "@/hooks/useUserProfile";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 interface ProfileHeaderProps {
   profile: UserProfile;
@@ -56,9 +57,9 @@ export const ProfileHeader = ({
   };
 
   return (
-    <div className="relative">
+    <div className="bg-card border-b border-border/50">
       {/* Banner */}
-      <div className="relative h-48 md:h-64 bg-gradient-primary overflow-hidden">
+      <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent overflow-hidden">
         {profile.banner_url ? (
           <img
             src={profile.banner_url}
@@ -66,11 +67,8 @@ export const ProfileHeader = ({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-primary/80 to-primary" />
+          <div className="w-full h-full bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10" />
         )}
-        
-        {/* Banner overlay for better avatar visibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/50 to-transparent" />
         
         {/* Edit banner button */}
         {isOwnProfile && (
@@ -85,102 +83,133 @@ export const ProfileHeader = ({
             <Button
               variant="secondary"
               size="sm"
-              className="absolute bottom-4 right-4 gap-2 opacity-80 hover:opacity-100 transition-opacity"
+              className="absolute bottom-3 right-3 gap-2 opacity-80 hover:opacity-100 transition-opacity text-xs"
               onClick={() => bannerInputRef.current?.click()}
               disabled={isUploadingBanner}
             >
               {isUploadingBanner ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
-                <Camera className="w-4 h-4" />
+                <Camera className="w-3.5 h-3.5" />
               )}
-              Edit Banner
+              <span className="hidden sm:inline">Edit Banner</span>
             </Button>
           </>
         )}
       </div>
 
-      {/* Profile Info Section */}
-      <div className="px-4 md:px-6 pb-4">
-        <div className="flex flex-col md:flex-row md:items-end gap-4 -mt-16 md:-mt-20 relative">
-          {/* Avatar */}
+      {/* Profile Content - Centered Layout like Peerlist */}
+      <div className="px-4 md:px-6 pb-6">
+        {/* Avatar - Overlapping Banner */}
+        <div className="flex justify-center -mt-14 sm:-mt-16 md:-mt-20">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             className="relative"
           >
-            <div className="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-background shadow-lg overflow-hidden bg-background">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-4 border-background shadow-xl overflow-hidden bg-background">
               <AvatarDisplay
                 avatarUrl={profile.avatar_url}
                 username={profile.username}
                 size="lg"
-                className="w-full h-full text-4xl"
+                className="w-full h-full text-3xl md:text-4xl"
               />
             </div>
           </motion.div>
-
-          {/* Name and Actions */}
-          <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
-                {profile.username}
-              </h1>
-              {profile.bio && (
-                <p className="text-muted-foreground mt-1 max-w-md">
-                  {profile.bio}
-                </p>
-              )}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              {isOwnProfile ? (
-                <Button variant="outline" onClick={onEditProfile} className="gap-2">
-                  <Edit2 className="w-4 h-4" />
-                  Edit Profile
-                </Button>
-              ) : (
-                <Button
-                  variant={isFollowing ? "outline" : "gradient"}
-                  onClick={handleFollowClick}
-                  disabled={isFollowLoading}
-                  className="gap-2"
-                >
-                  {isFollowLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : isFollowing ? (
-                    <>
-                      <UserMinus className="w-4 h-4" />
-                      Unfollow
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="w-4 h-4" />
-                      Follow
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-          </div>
         </div>
 
-        {/* Stats Row */}
-        <div className="flex gap-6 mt-6 pt-4 border-t border-border/50">
+        {/* Username and Bio - Centered */}
+        <div className="text-center mt-4">
+          <motion.h1
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="font-display text-xl sm:text-2xl font-bold text-foreground"
+          >
+            {profile.username}
+          </motion.h1>
+          
+          {profile.bio && (
+            <motion.p
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.15 }}
+              className="text-muted-foreground mt-2 text-sm sm:text-base max-w-md mx-auto"
+            >
+              {profile.bio}
+            </motion.p>
+          )}
+
+          {/* Joined Date */}
+          <motion.div
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center justify-center gap-1.5 mt-3 text-xs text-muted-foreground"
+          >
+            <CalendarDays className="w-3.5 h-3.5" />
+            <span>Joined {format(new Date(profile.created_at), "MMMM yyyy")}</span>
+          </motion.div>
+        </div>
+
+        {/* Stats Row - Centered */}
+        <motion.div
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          className="flex items-center justify-center gap-6 sm:gap-8 mt-5"
+        >
           <StatItem value={stats.followersCount} label="Followers" />
+          <div className="w-px h-8 bg-border/50" />
           <StatItem value={stats.followingCount} label="Following" />
-          <StatItem value={stats.eventsCreatedCount} label="Events Created" />
-          <StatItem value={stats.clubsJoinedCount} label="Clubs" />
-        </div>
+          <div className="w-px h-8 bg-border/50" />
+          <StatItem value={stats.eventsCreatedCount} label="Events" />
+        </motion.div>
+
+        {/* Action Button - Centered */}
+        <motion.div
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="flex justify-center mt-5"
+        >
+          {isOwnProfile ? (
+            <Button variant="outline" onClick={onEditProfile} className="gap-2 px-6">
+              <Edit2 className="w-4 h-4" />
+              Edit Profile
+            </Button>
+          ) : (
+            <Button
+              variant={isFollowing ? "outline" : "gradient"}
+              onClick={handleFollowClick}
+              disabled={isFollowLoading}
+              className="gap-2 px-6"
+            >
+              {isFollowLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isFollowing ? (
+                <>
+                  <UserMinus className="w-4 h-4" />
+                  Unfollow
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4" />
+                  Follow
+                </>
+              )}
+            </Button>
+          )}
+        </motion.div>
       </div>
     </div>
   );
 };
 
 const StatItem = ({ value, label }: { value: number; label: string }) => (
-  <div className="flex items-baseline gap-1.5">
-    <span className="font-display text-lg font-bold text-foreground">{value}</span>
-    <span className="text-sm text-muted-foreground">{label}</span>
+  <div className="text-center">
+    <div className="font-display text-lg sm:text-xl font-bold text-foreground">{value}</div>
+    <div className="text-xs text-muted-foreground">{label}</div>
   </div>
 );
 

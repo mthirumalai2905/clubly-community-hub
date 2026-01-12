@@ -297,7 +297,7 @@ const Dashboard = () => {
           {/* Profile Section */}
           <div className="pt-5 border-t border-border/50 space-y-4">
             <button
-              onClick={() => setShowProfileModal(true)}
+              onClick={() => navigate(`/profile/${user?.id}`)}
               className="w-full flex items-center gap-3 p-2 -mx-2 rounded-xl hover:bg-muted/50 transition-colors group"
             >
               <AvatarDisplay
@@ -309,7 +309,7 @@ const Dashboard = () => {
                 <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                   {profile?.username || "User"}
                 </p>
-                <p className="text-xs text-muted-foreground">Edit profile</p>
+                <p className="text-xs text-muted-foreground">View profile</p>
               </div>
               <Settings className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
             </button>
