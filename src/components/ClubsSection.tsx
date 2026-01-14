@@ -4,6 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 
+// Import club images
+import techFoundersImg from "@/assets/clubs/tech-founders.jpg";
+import bookClubImg from "@/assets/clubs/book-club.jpg";
+import morningRunImg from "@/assets/clubs/morning-run.jpg";
+import designSystemsImg from "@/assets/clubs/design-systems.jpg";
+
 const clubs = [
   {
     name: "Tech Founders Hub",
@@ -11,8 +17,8 @@ const clubs = [
     members: 342,
     description: "Weekly meetups for founders building the future",
     events: 3,
-    initial: "TF",
-    color: "bg-orange-100 text-orange-600",
+    image: techFoundersImg,
+    color: "from-orange-500/80 to-orange-600/80",
   },
   {
     name: "Campus Book Club",
@@ -20,8 +26,8 @@ const clubs = [
     members: 128,
     description: "Monthly reads and thoughtful discussions",
     events: 2,
-    initial: "BC",
-    color: "bg-blue-100 text-blue-600",
+    image: bookClubImg,
+    color: "from-blue-500/80 to-blue-600/80",
   },
   {
     name: "Morning Run Crew",
@@ -29,8 +35,8 @@ const clubs = [
     members: 89,
     description: "5AM runs to start the day right",
     events: 5,
-    initial: "MR",
-    color: "bg-green-100 text-green-600",
+    image: morningRunImg,
+    color: "from-green-500/80 to-green-600/80",
   },
   {
     name: "Design Systems",
@@ -38,8 +44,8 @@ const clubs = [
     members: 267,
     description: "Crafting consistent, scalable design systems",
     events: 1,
-    initial: "DS",
-    color: "bg-purple-100 text-purple-600",
+    image: designSystemsImg,
+    color: "from-purple-500/80 to-purple-600/80",
   },
 ];
 
@@ -85,33 +91,40 @@ const ClubsSection = () => {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: index * 0.08 }}
               onClick={() => navigate("/auth")}
-              className="group p-5 bg-background rounded-xl border border-border hover:border-primary/20 hover:shadow-md transition-all duration-200 cursor-pointer"
+              className="group relative overflow-hidden rounded-xl border border-border hover:border-primary/20 hover:shadow-lg transition-all duration-300 cursor-pointer h-48"
             >
-              <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 rounded-xl ${club.color} flex items-center justify-center font-semibold text-sm flex-shrink-0`}>
-                  {club.initial}
+              {/* Background Image */}
+              <img
+                src={club.image}
+                alt={club.name}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              
+              {/* Gradient Overlay */}
+              <div className={`absolute inset-0 bg-gradient-to-t ${club.color} opacity-70 group-hover:opacity-80 transition-opacity`} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+              
+              {/* Content */}
+              <div className="relative h-full p-5 flex flex-col justify-end text-white">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs font-medium bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full">
+                    {club.category}
+                  </span>
                 </div>
-                <div className="flex-grow min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-display font-semibold text-foreground group-hover:text-primary transition-colors truncate">
-                      {club.name}
-                    </h3>
-                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0">
-                      {club.category}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
-                    {club.description}
-                  </p>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5" />
-                      {club.members} members
-                    </span>
-                    <span>
-                      <span className="text-primary font-medium">{club.events}</span> upcoming events
-                    </span>
-                  </div>
+                <h3 className="font-display font-bold text-xl mb-1 group-hover:text-white transition-colors">
+                  {club.name}
+                </h3>
+                <p className="text-sm text-white/80 mb-3 line-clamp-1">
+                  {club.description}
+                </p>
+                <div className="flex items-center gap-4 text-xs text-white/70">
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5" />
+                    {club.members} members
+                  </span>
+                  <span>
+                    <span className="text-white font-medium">{club.events}</span> upcoming events
+                  </span>
                 </div>
               </div>
             </motion.div>

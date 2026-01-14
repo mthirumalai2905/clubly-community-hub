@@ -1,4 +1,4 @@
-import clublyLogo from "@/assets/clubly-logo.png";
+import clublyLogo from "@/assets/clubly-logo-new.png";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg";
