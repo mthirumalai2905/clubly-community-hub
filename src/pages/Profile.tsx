@@ -249,70 +249,70 @@ const Profile = () => {
           />
 
           {/* Content - Full Width Three Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-4">
-              {/* Left Sidebar - Stats */}
-              <div className="lg:col-span-3 order-2 lg:order-1">
-                <div className="sticky top-4">
-                  <ProfileStats stats={stats} />
-                </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12">
+            {/* Left Sidebar - Stats */}
+            <div className="lg:col-span-3 order-2 lg:order-1 p-4">
+              <div className="sticky top-4">
+                <ProfileStats stats={stats} />
               </div>
+            </div>
 
-              {/* Main Column - Activity & Events */}
-              <div className="lg:col-span-6 order-1 lg:order-2 space-y-4">
-                {/* Activity Heatmap */}
-                <ActivityHeatmap userId={profile.user_id} />
+            {/* Main Column - Activity & Events */}
+            <div className="lg:col-span-6 order-1 lg:order-2 space-y-4 p-4">
+              {/* Activity Heatmap */}
+              <ActivityHeatmap userId={profile.user_id} />
 
-                {/* User's Events */}
-                <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
-                  <div className="flex items-center gap-2 p-4 border-b border-border/50">
-                    <Calendar className="w-4 h-4 text-primary" />
-                    <h3 className="font-display text-sm font-semibold text-foreground">
-                      Events Created
-                    </h3>
-                    <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                      {userEvents.length}
-                    </span>
+              {/* User's Events */}
+              <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
+                <div className="flex items-center gap-2 p-4 border-b border-border/50">
+                  <Calendar className="w-4 h-4 text-primary" />
+                  <h3 className="font-display text-sm font-semibold text-foreground">
+                    Events Created
+                  </h3>
+                  <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                    {userEvents.length}
+                  </span>
+                </div>
+
+                {userEvents.length === 0 ? (
+                  <div className="text-center py-10 text-muted-foreground">
+                    <Calendar className="w-10 h-10 mx-auto mb-2 opacity-40" />
+                    <p className="text-sm">No events created yet</p>
                   </div>
-
-                  {userEvents.length === 0 ? (
-                    <div className="text-center py-10 text-muted-foreground">
-                      <Calendar className="w-10 h-10 mx-auto mb-2 opacity-40" />
-                      <p className="text-sm">No events created yet</p>
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-border/50">
-                      {userEvents.map((event) => (
-                        <div
-                          key={event.id}
-                          className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors cursor-pointer"
-                          onClick={() => navigate(`/club/${event.id}`)}
-                        >
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm text-foreground truncate">
-                              {event.title}
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {event.clubs?.name} • {format(new Date(event.event_date), "MMM d, yyyy")}
-                            </p>
-                          </div>
-                          <span
-                            className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 ml-3 ${
-                              event.event_type === "online"
-                                ? "bg-secondary text-secondary-foreground"
-                                : "bg-primary/10 text-primary"
-                            }`}
-                          >
-                            {event.event_type}
-                          </span>
+                ) : (
+                  <div className="divide-y divide-border/50">
+                    {userEvents.map((event) => (
+                      <div
+                        key={event.id}
+                        className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors cursor-pointer"
+                        onClick={() => navigate(`/club/${event.id}`)}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm text-foreground truncate">
+                            {event.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {event.clubs?.name} • {format(new Date(event.event_date), "MMM d, yyyy")}
+                          </p>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                        <span
+                          className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 ml-3 ${
+                            event.event_type === "online"
+                              ? "bg-secondary text-secondary-foreground"
+                              : "bg-primary/10 text-primary"
+                          }`}
+                        >
+                          {event.event_type}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
+            </div>
 
-              {/* Right Sidebar - Additional Info */}
-              <div className="lg:col-span-3 order-3 space-y-4">
+            {/* Right Sidebar - Additional Info */}
+            <div className="lg:col-span-3 order-3 space-y-4 p-4">
                 <div className="sticky top-4 space-y-4">
                   {/* Quick Actions */}
                   <div className="p-4 bg-card rounded-xl border border-border/50">
