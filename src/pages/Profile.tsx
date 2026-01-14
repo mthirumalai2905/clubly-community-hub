@@ -236,21 +236,20 @@ const Profile = () => {
 
         {/* Main Content */}
         <main className="flex-1 min-h-screen pb-20 md:pb-0">
-          <div className="max-w-3xl mx-auto">
-            {/* Profile Header */}
-            <ProfileHeader
-              profile={profile}
-              stats={stats}
-              isOwnProfile={isOwnProfile}
-              isFollowing={isFollowing}
-              onEditProfile={() => setShowEditModal(true)}
-              onToggleFollow={handleToggleFollow}
-              onBannerUpload={uploadBanner}
-              onBannerUpdate={handleBannerUpdate}
-            />
+          {/* Profile Header */}
+          <ProfileHeader
+            profile={profile}
+            stats={stats}
+            isOwnProfile={isOwnProfile}
+            isFollowing={isFollowing}
+            onEditProfile={() => setShowEditModal(true)}
+            onToggleFollow={handleToggleFollow}
+            onBannerUpload={uploadBanner}
+            onBannerUpdate={handleBannerUpdate}
+          />
 
-            {/* Content - Symmetrical Three Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 md:p-6">
+          {/* Content - Full Width Three Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-4">
               {/* Left Sidebar - Stats */}
               <div className="lg:col-span-3 order-2 lg:order-1">
                 <div className="sticky top-4">
@@ -378,7 +377,6 @@ const Profile = () => {
                 </div>
               </div>
             </div>
-          </div>
         </main>
       </div>
 
