@@ -4,6 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 
+// Import event images
+import pitchNightImg from "@/assets/events/pitch-night.jpg";
+import trailRunImg from "@/assets/events/trail-run.jpg";
+import designWorkshopImg from "@/assets/events/design-workshop.jpg";
+
 const events = [
   {
     title: "Startup Pitch Night",
@@ -15,6 +20,7 @@ const events = [
     type: "online",
     attendees: 48,
     spots: 50,
+    image: pitchNightImg,
   },
   {
     title: "Morning Trail Run",
@@ -27,6 +33,7 @@ const events = [
     location: "Central Park",
     attendees: 23,
     spots: 30,
+    image: trailRunImg,
   },
   {
     title: "Design Systems Workshop",
@@ -38,6 +45,7 @@ const events = [
     type: "online",
     attendees: 67,
     spots: 100,
+    image: designWorkshopImg,
   },
 ];
 
@@ -65,7 +73,7 @@ const EventsSection = () => {
         </motion.div>
 
         {/* Events List */}
-        <div className="space-y-3 mb-10">
+        <div className="space-y-4 mb-10">
           {events.map((event, index) => {
             const fillPercentage = (event.attendees / event.spots) * 100;
             
@@ -77,6 +85,15 @@ const EventsSection = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group flex flex-col md:flex-row md:items-center gap-4 p-4 bg-muted/30 hover:bg-muted/50 rounded-xl border border-transparent hover:border-border transition-all duration-200"
               >
+                {/* Event Image */}
+                <div className="flex-shrink-0 w-full md:w-24 h-32 md:h-16 rounded-lg overflow-hidden">
+                  <img 
+                    src={event.image} 
+                    alt={event.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+
                 {/* Date Badge */}
                 <div className="flex-shrink-0 w-14 h-14 bg-foreground rounded-xl flex flex-col items-center justify-center text-background">
                   <span className="text-[10px] font-medium uppercase leading-none opacity-70">
