@@ -24,12 +24,20 @@ import {
   TrendingUp,
   ArrowRight,
   Settings,
+  UserPlus,
 } from "lucide-react";
 import CreateClubModal from "@/components/CreateClubModal";
 import ProfileModal from "@/components/ProfileModal";
 import { AvatarDisplay } from "@/components/AvatarPicker";
 import { useToast } from "@/hooks/use-toast";
 import { format, formatDistanceToNow } from "date-fns";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useDirectMessages } from "@/hooks/useDirectMessages";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { UserSearch } from "@/components/UserSearch";
+import { NotificationsPanel } from "@/components/NotificationsPanel";
+import { MessagesPanel } from "@/components/MessagesPanel";
+import { FriendsList } from "@/components/FriendsList";
 
 interface Club {
   id: string;
@@ -71,6 +79,8 @@ const Dashboard = () => {
   const { profile } = useProfile();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { unreadCount } = useNotifications();
+  const { totalUnread: messageUnread } = useDirectMessages();
 
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [myClubs, setMyClubs] = useState<Club[]>([]);
@@ -80,6 +90,10 @@ const Dashboard = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [activeTab, setActiveTab] = useState<"feed" | "discover">("feed");
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+  const [showMessagesModal, setShowMessagesModal] = useState(false);
+  const [showFriendsModal, setShowFriendsModal] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -285,18 +299,25 @@ const Dashboard = () => {
             />
             <NavButton
               icon={Search}
-              label="Discover"
-              active={activeTab === "discover"}
-              onClick={() => setActiveTab("discover")}
+              label="Find Friends"
+              onClick={() => setShowSearchModal(true)}
+            />
+            <NavButton
+              icon={UserPlus}
+              label="Friends"
+              onClick={() => setShowFriendsModal(true)}
             />
             <NavButton
               icon={Bell}
               label="Notifications"
-              badge={3}
+              badge={unreadCount > 0 ? unreadCount : undefined}
+              onClick={() => setShowNotificationsModal(true)}
             />
             <NavButton
               icon={MessageCircle}
               label="Messages"
+              badge={messageUnread > 0 ? messageUnread : undefined}
+              onClick={() => setShowMessagesModal(true)}
             />
           </nav>
 
@@ -896,3 +917,62 @@ const FeedCard = ({
 };
 
 export default Dashboard;
+
+// Search Modal Component - rendered within Dashboard
+export const DashboardModals = ({
+  showSearchModal,
+  setShowSearchModal,
+  showNotificationsModal,
+  setShowNotificationsModal,
+  showMessagesModal,
+  setShowMessagesModal,
+  showFriendsModal,
+  setShowFriendsModal,
+}: {
+  showSearchModal: boolean;
+  setShowSearchModal: (v: boolean) => void;
+  showNotificationsModal: boolean;
+  setShowNotificationsModal: (v: boolean) => void;
+  showMessagesModal: boolean;
+  setShowMessagesModal: (v: boolean) => void;
+  showFriendsModal: boolean;
+  setShowFriendsModal: (v: boolean) => void;
+}) => (
+  <>
+    <Dialog open={showSearchModal} onOpenChange={setShowSearchModal}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Find Friends</DialogTitle>
+        </DialogHeader>
+        <UserSearch onClose={() => setShowSearchModal(false)} />
+      </DialogContent>
+    </Dialog>
+
+    <Dialog open={showNotificationsModal} onOpenChange={setShowNotificationsModal}>
+      <DialogContent className="sm:max-w-md">
+        <NotificationsPanel onClose={() => setShowNotificationsModal(false)} />
+      </DialogContent>
+    </Dialog>
+
+    <Dialog open={showMessagesModal} onOpenChange={setShowMessagesModal}>
+      <DialogContent className="sm:max-w-md">
+        <MessagesPanel onClose={() => setShowMessagesModal(false)} />
+      </DialogContent>
+    </Dialog>
+
+    <Dialog open={showFriendsModal} onOpenChange={setShowFriendsModal}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Friends</DialogTitle>
+        </DialogHeader>
+        <FriendsList 
+          onClose={() => setShowFriendsModal(false)}
+          onStartChat={(friendId) => {
+            setShowFriendsModal(false);
+            setShowMessagesModal(true);
+          }}
+        />
+      </DialogContent>
+    </Dialog>
+  </>
+);
