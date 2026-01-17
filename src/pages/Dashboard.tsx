@@ -33,11 +33,13 @@ import { useToast } from "@/hooks/use-toast";
 import { format, formatDistanceToNow } from "date-fns";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useDirectMessages } from "@/hooks/useDirectMessages";
+import { useFeedInteractions } from "@/hooks/useFeedInteractions";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { UserSearch } from "@/components/UserSearch";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { MessagesPanel } from "@/components/MessagesPanel";
 import { FriendsList } from "@/components/FriendsList";
+import { FeedComments } from "@/components/FeedComments";
 
 interface Club {
   id: string;
@@ -89,7 +91,6 @@ const Dashboard = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [activeTab, setActiveTab] = useState<"feed" | "discover">("feed");
-  const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [showMessagesModal, setShowMessagesModal] = useState(false);
@@ -225,17 +226,6 @@ const Dashboard = () => {
     }
   };
 
-  const toggleLike = (itemId: string) => {
-    setLikedItems((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(itemId)) {
-        newSet.delete(itemId);
-      } else {
-        newSet.add(itemId);
-      }
-      return newSet;
-    });
-  };
 
   if (authLoading) {
     return (
@@ -519,8 +509,6 @@ const Dashboard = () => {
                       onJoinClub={handleJoinClub}
                       onRsvp={handleRsvp}
                       onNavigate={navigate}
-                      isLiked={likedItems.has(item.id)}
-                      onToggleLike={() => toggleLike(item.id)}
                     />
                   ))}
                 </div>
@@ -649,6 +637,17 @@ const Dashboard = () => {
         open={showProfileModal}
         onOpenChange={setShowProfileModal}
       />
+
+      <DashboardModals
+        showSearchModal={showSearchModal}
+        setShowSearchModal={setShowSearchModal}
+        showNotificationsModal={showNotificationsModal}
+        setShowNotificationsModal={setShowNotificationsModal}
+        showMessagesModal={showMessagesModal}
+        setShowMessagesModal={setShowMessagesModal}
+        showFriendsModal={showFriendsModal}
+        setShowFriendsModal={setShowFriendsModal}
+      />
     </div>
   );
 };
@@ -755,8 +754,6 @@ interface FeedCardProps {
   onJoinClub: (clubId: string) => void;
   onRsvp: (eventId: string) => void;
   onNavigate: (path: string) => void;
-  isLiked: boolean;
-  onToggleLike: () => void;
 }
 
 const FeedCard = ({
@@ -765,9 +762,13 @@ const FeedCard = ({
   onJoinClub,
   onRsvp,
   onNavigate,
-  isLiked,
-  onToggleLike,
 }: FeedCardProps) => {
+  const [showComments, setShowComments] = useState(false);
+  const { likes, comments, toggleLike, loading } = useFeedInteractions(
+    item.type === "event" ? (item.data as Event).id : (item.data as Club).id,
+    item.type
+  );
+
   if (item.type === "event") {
     const event = item.data as Event;
     const eventDate = new Date(event.event_date);
@@ -835,25 +836,38 @@ const FeedCard = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 px-4 pb-4 border-t border-border/50 pt-3">
+        <div className="flex items-center gap-2 px-4 pb-3 border-t border-border/50 pt-3">
           <Button
             variant="ghost"
             size="sm"
-            className={`${isLiked ? "text-red-500" : "text-muted-foreground"}`}
-            onClick={onToggleLike}
+            className={`${likes.isLiked ? "text-red-500" : "text-muted-foreground"}`}
+            onClick={toggleLike}
+            disabled={loading}
           >
-            <Heart className={`w-4 h-4 mr-1.5 ${isLiked ? "fill-current" : ""}`} />
-            Like
+            <Heart className={`w-4 h-4 mr-1.5 ${likes.isLiked ? "fill-current" : ""}`} />
+            {likes.count > 0 ? likes.count : "Like"}
           </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className={showComments ? "text-primary" : "text-muted-foreground"}
+            onClick={() => setShowComments(!showComments)}
+          >
             <MessageCircle className="w-4 h-4 mr-1.5" />
-            Comment
+            {comments.count > 0 ? comments.count : "Comment"}
           </Button>
           <Button variant="ghost" size="sm" className="text-muted-foreground ml-auto">
             <Share2 className="w-4 h-4 mr-1.5" />
             Share
           </Button>
         </div>
+
+        <FeedComments
+          itemId={event.id}
+          itemType="event"
+          isOpen={showComments}
+          onClose={() => setShowComments(false)}
+        />
       </div>
     );
   }
@@ -865,49 +879,99 @@ const FeedCard = ({
       <div
         className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden animate-slide-up opacity-0 cursor-pointer group"
         style={{ animationDelay: `${index * 0.08}s` }}
-        onClick={() => onNavigate(`/club/${club.id}`)}
       >
-        <div className="flex items-center gap-3 p-4 pb-3">
-          <div className="w-11 h-11 bg-gradient-primary rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-            <span className="text-sm font-bold text-primary-foreground">{club.name[0]}</span>
+        <div 
+          className="cursor-pointer"
+          onClick={() => onNavigate(`/club/${club.id}`)}
+        >
+          <div className="flex items-center gap-3 p-4 pb-3">
+            <div className="w-11 h-11 bg-gradient-primary rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+              <span className="text-sm font-bold text-primary-foreground">{club.name[0]}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">New Club Created</p>
+              <p className="text-xs text-muted-foreground">
+                {formatDistanceToNow(new Date(club.created_at), { addSuffix: true })}
+              </p>
+            </div>
+            <span className="px-2.5 py-1 text-xs font-medium bg-secondary text-secondary-foreground rounded-full">
+              {club.category}
+            </span>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground">New Club Created</p>
-            <p className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(club.created_at), { addSuffix: true })}
-            </p>
+
+          <div className="px-4 pb-4">
+            <h3 className="font-display text-lg font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
+              {club.name}
+            </h3>
+            {club.description && (
+              <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                {club.description}
+              </p>
+            )}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Users className="w-4 h-4" />
+                <span>
+                  <span className="font-semibold text-foreground">{club.member_count}</span> members
+                </span>
+              </div>
+              <Button
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onJoinClub(club.id);
+                }}
+              >
+                Join Club
+              </Button>
+            </div>
           </div>
-          <span className="px-2.5 py-1 text-xs font-medium bg-secondary text-secondary-foreground rounded-full">
-            {club.category}
-          </span>
         </div>
 
-        <div className="px-4 pb-4">
-          <h3 className="font-display text-lg font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
-            {club.name}
-          </h3>
-          {club.description && (
-            <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-              {club.description}
-            </p>
-          )}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Users className="w-4 h-4" />
-              <span>
-                <span className="font-semibold text-foreground">{club.member_count}</span> members
-              </span>
-            </div>
-            <Button
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onJoinClub(club.id);
-              }}
-            >
-              Join Club
-            </Button>
-          </div>
+        <div className="flex items-center gap-2 px-4 pb-3 border-t border-border/50 pt-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`${likes.isLiked ? "text-red-500" : "text-muted-foreground"}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleLike();
+            }}
+            disabled={loading}
+          >
+            <Heart className={`w-4 h-4 mr-1.5 ${likes.isLiked ? "fill-current" : ""}`} />
+            {likes.count > 0 ? likes.count : "Like"}
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className={showComments ? "text-primary" : "text-muted-foreground"}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowComments(!showComments);
+            }}
+          >
+            <MessageCircle className="w-4 h-4 mr-1.5" />
+            {comments.count > 0 ? comments.count : "Comment"}
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-muted-foreground ml-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Share2 className="w-4 h-4 mr-1.5" />
+            Share
+          </Button>
+        </div>
+
+        <div onClick={(e) => e.stopPropagation()}>
+          <FeedComments
+            itemId={club.id}
+            itemType="club"
+            isOpen={showComments}
+            onClose={() => setShowComments(false)}
+          />
         </div>
       </div>
     );
