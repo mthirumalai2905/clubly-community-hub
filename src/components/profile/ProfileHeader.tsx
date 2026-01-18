@@ -16,6 +16,8 @@ interface ProfileHeaderProps {
   onToggleFollow: () => Promise<void>;
   onBannerUpload: (file: File) => Promise<string | null>;
   onBannerUpdate: (url: string) => Promise<void>;
+  onFollowersClick?: () => void;
+  onFollowingClick?: () => void;
 }
 
 export const ProfileHeader = ({
@@ -27,6 +29,8 @@ export const ProfileHeader = ({
   onToggleFollow,
   onBannerUpload,
   onBannerUpdate,
+  onFollowersClick,
+  onFollowingClick,
 }: ProfileHeaderProps) => {
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
@@ -159,9 +163,9 @@ export const ProfileHeader = ({
           transition={{ delay: 0.25 }}
           className="flex items-center justify-center gap-6 sm:gap-8 mt-5"
         >
-          <StatItem value={stats.followersCount} label="Followers" />
+          <StatItem value={stats.followersCount} label="Followers" onClick={onFollowersClick} />
           <div className="w-px h-8 bg-border/50" />
-          <StatItem value={stats.followingCount} label="Following" />
+          <StatItem value={stats.followingCount} label="Following" onClick={onFollowingClick} />
           <div className="w-px h-8 bg-border/50" />
           <StatItem value={stats.eventsCreatedCount} label="Events" />
         </motion.div>
@@ -206,11 +210,15 @@ export const ProfileHeader = ({
   );
 };
 
-const StatItem = ({ value, label }: { value: number; label: string }) => (
-  <div className="text-center">
+const StatItem = ({ value, label, onClick }: { value: number; label: string; onClick?: () => void }) => (
+  <button
+    onClick={onClick}
+    disabled={!onClick}
+    className={`text-center ${onClick ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}`}
+  >
     <div className="font-display text-lg sm:text-xl font-bold text-foreground">{value}</div>
     <div className="text-xs text-muted-foreground">{label}</div>
-  </div>
+  </button>
 );
 
 export default ProfileHeader;
