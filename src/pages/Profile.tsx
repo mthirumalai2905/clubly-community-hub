@@ -23,6 +23,9 @@ import ProfileStats from "@/components/profile/ProfileStats";
 import ActivityHeatmap from "@/components/profile/ActivityHeatmap";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 import CreateClubModal from "@/components/CreateClubModal";
+import FollowersModal from "@/components/profile/FollowersModal";
+import { MessagesPanel } from "@/components/MessagesPanel";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -56,6 +59,10 @@ const Profile = () => {
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCreateClubModal, setShowCreateClubModal] = useState(false);
+  const [showFollowersModal, setShowFollowersModal] = useState(false);
+  const [followersModalTab, setFollowersModalTab] = useState<"followers" | "following">("followers");
+  const [showMessagesModal, setShowMessagesModal] = useState(false);
+  const [messageUserId, setMessageUserId] = useState<string | null>(null);
   const [userEvents, setUserEvents] = useState<UserEvent[]>([]);
   const [activeTab, setActiveTab] = useState<"events" | "clubs">("events");
 
@@ -122,6 +129,21 @@ const Profile = () => {
         description: "Looking great!",
       });
     }
+  };
+
+  const handleOpenFollowers = () => {
+    setFollowersModalTab("followers");
+    setShowFollowersModal(true);
+  };
+
+  const handleOpenFollowing = () => {
+    setFollowersModalTab("following");
+    setShowFollowersModal(true);
+  };
+
+  const handleMessageUser = (userId: string, username: string, avatarUrl: string | null) => {
+    setMessageUserId(userId);
+    setShowMessagesModal(true);
   };
 
   if (authLoading || profileLoading) {
@@ -246,6 +268,8 @@ const Profile = () => {
             onToggleFollow={handleToggleFollow}
             onBannerUpload={uploadBanner}
             onBannerUpdate={handleBannerUpdate}
+            onFollowersClick={handleOpenFollowers}
+            onFollowingClick={handleOpenFollowing}
           />
 
           {/* Content - Full Width Three Column Layout */}
@@ -360,18 +384,24 @@ const Profile = () => {
                       Connections
                     </h3>
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="text-center p-3 bg-muted/50 rounded-lg">
+                      <button
+                        onClick={handleOpenFollowers}
+                        className="text-center p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                      >
                         <p className="font-display font-bold text-lg text-foreground">
                           {stats.followersCount}
                         </p>
                         <p className="text-xs text-muted-foreground">Followers</p>
-                      </div>
-                      <div className="text-center p-3 bg-muted/50 rounded-lg">
+                      </button>
+                      <button
+                        onClick={handleOpenFollowing}
+                        className="text-center p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                      >
                         <p className="font-display font-bold text-lg text-foreground">
                           {stats.followingCount}
                         </p>
                         <p className="text-xs text-muted-foreground">Following</p>
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -414,6 +444,23 @@ const Profile = () => {
         onClose={() => setShowCreateClubModal(false)}
         onSuccess={() => setShowCreateClubModal(false)}
       />
+
+      <FollowersModal
+        open={showFollowersModal}
+        onOpenChange={setShowFollowersModal}
+        userId={profile.user_id}
+        initialTab={followersModalTab}
+        onMessageUser={handleMessageUser}
+      />
+
+      <Dialog open={showMessagesModal} onOpenChange={setShowMessagesModal}>
+        <DialogContent className="sm:max-w-md p-0 gap-0 h-[500px]">
+          <MessagesPanel
+            initialFriendId={messageUserId || undefined}
+            onClose={() => setShowMessagesModal(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
