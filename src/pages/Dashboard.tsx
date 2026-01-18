@@ -40,6 +40,7 @@ import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { MessagesPanel } from "@/components/MessagesPanel";
 import { FriendsList } from "@/components/FriendsList";
 import { FeedComments } from "@/components/FeedComments";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface Club {
   id: string;
@@ -271,13 +272,16 @@ const Dashboard = () => {
       <div className="flex">
         {/* Desktop Sidebar */}
         <aside className="hidden md:flex flex-col w-72 h-screen sticky top-0 bg-background border-r border-border/50 p-5">
-          <div className="flex items-center gap-2.5 mb-10">
-            <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-md">
-              <Users className="w-5 h-5 text-primary-foreground" />
+          <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-md">
+                <Users className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <span className="font-display text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                Clubly
+              </span>
             </div>
-            <span className="font-display text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Clubly
-            </span>
+            <ThemeToggle />
           </div>
 
           <nav className="flex-1 space-y-1.5">
