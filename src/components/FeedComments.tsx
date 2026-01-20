@@ -36,8 +36,8 @@ export const FeedComments = ({ itemId, itemType, isOpen, onClose }: FeedComments
 
   return (
     <div className="border-t border-border/50 bg-muted/30">
-      {/* Comments list */}
-      <div className="max-h-64 overflow-y-auto p-3 space-y-3">
+      {/* Comments list - scrollable after 3 comments (~150px) */}
+      <div className="max-h-[150px] overflow-y-auto p-3 space-y-3 scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent">
         {commentsLoading ? (
           <div className="flex items-center justify-center py-4">
             <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
