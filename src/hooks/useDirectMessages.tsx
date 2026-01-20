@@ -160,6 +160,9 @@ export const useDirectMessages = () => {
           data: { sender_id: user.id },
         });
 
+      // Record activity for sending a message
+      await supabase.rpc("record_user_activity");
+
       fetchConversations();
       return { error: null };
     } catch (error) {
