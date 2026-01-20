@@ -124,6 +124,9 @@ export const useFeedInteractions = (itemId: string, itemType: "event" | "club") 
           });
         
         setLikes(prev => ({ count: prev.count + 1, isLiked: true }));
+        
+        // Record activity for liking
+        await supabase.rpc("record_user_activity");
       }
     } catch (error) {
       console.error("Error toggling like:", error);
@@ -168,6 +171,9 @@ export const useFeedInteractions = (itemId: string, itemType: "event" | "club") 
         count: prev.count + 1,
         comments: [...prev.comments, newComment],
       }));
+
+      // Record activity for commenting
+      await supabase.rpc("record_user_activity");
     } catch (error) {
       console.error("Error adding comment:", error);
     }

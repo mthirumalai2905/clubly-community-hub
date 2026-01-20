@@ -49,6 +49,32 @@ export const useActivityHeatmap = (userId?: string) => {
     fetchActivity();
   }, [fetchActivity]);
 
+  // Subscribe to realtime updates for user activity
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel(`user-activity-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "user_activity",
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          // Refetch activity data when there's a change
+          fetchActivity();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, fetchActivity]);
+
   // Record activity for today
   const recordActivity = async () => {
     try {
@@ -109,6 +135,7 @@ export const useActivityHeatmap = (userId?: string) => {
     recordActivity,
     generateHeatmapData,
     getActivityLevel,
+    refetchActivity: fetchActivity,
   };
 };
 
