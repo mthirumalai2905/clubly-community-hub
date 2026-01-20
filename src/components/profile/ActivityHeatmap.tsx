@@ -15,9 +15,10 @@ export const ActivityHeatmap = ({ userId, className }: ActivityHeatmapProps) => 
   const { generateHeatmapData, getActivityLevel, loading, activityData } = useActivityHeatmap(userId);
   const [hoveredDay, setHoveredDay] = useState<{ date: Date; count: number } | null>(null);
 
-  const weeks = useMemo(() => generateHeatmapData(), [generateHeatmapData]);
+  // Re-generate heatmap when activityData changes (realtime updates)
+  const weeks = useMemo(() => generateHeatmapData(), [activityData, generateHeatmapData]);
   
-  // Calculate total active days
+  // Calculate total active days - recalculate when data changes
   const totalActiveDays = useMemo(() => {
     return activityData.filter(d => d.count > 0).length;
   }, [activityData]);
