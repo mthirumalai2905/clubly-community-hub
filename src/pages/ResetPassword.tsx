@@ -1,34 +1,34 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Users } from "lucide-react";
+import { Users, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 
 const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { updatePassword, session } = useAuth();
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const { updatePassword, session, loading, isRecoveryMode } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check if user came from password reset email (has valid session from recovery)
+  // Check if user came from password reset email
   useEffect(() => {
-    // If no session, redirect to auth page
+    // Wait for auth to finish loading
+    if (loading) return;
+    
+    setIsCheckingSession(false);
+    
+    // If we have a session (either recovery mode or normal), allow password reset
     if (!session) {
-      // Give some time for session to load from URL hash
-      const timer = setTimeout(() => {
-        if (!session) {
-          toast({
-            title: "Invalid or expired link",
-            description: "Please request a new password reset link.",
-            variant: "destructive",
-          });
-          navigate("/auth");
-        }
-      }, 2000);
-      return () => clearTimeout(timer);
+      toast({
+        title: "Invalid or expired link",
+        description: "Please request a new password reset link.",
+        variant: "destructive",
+      });
+      navigate("/auth");
     }
-  }, [session, navigate, toast]);
+  }, [session, loading, navigate, toast]);
 
   const handleUpdatePassword = async (password: string) => {
     const result = await updatePassword(password);
@@ -55,6 +55,18 @@ const ResetPassword = () => {
       variant: "destructive",
     });
   };
+
+  // Show loading while checking session
+  if (loading || isCheckingSession) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Verifying your reset link...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex">
