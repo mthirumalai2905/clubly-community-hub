@@ -3,19 +3,43 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { AuthForm } from "@/components/auth/AuthForm";
+import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 
-const Auth = () => {
+const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp, signIn, resetPassword, user } = useAuth();
+  const { updatePassword, session } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Check if user came from password reset email (has valid session from recovery)
   useEffect(() => {
-    if (user) {
-      navigate("/dashboard");
+    // If no session, redirect to auth page
+    if (!session) {
+      // Give some time for session to load from URL hash
+      const timer = setTimeout(() => {
+        if (!session) {
+          toast({
+            title: "Invalid or expired link",
+            description: "Please request a new password reset link.",
+            variant: "destructive",
+          });
+          navigate("/auth");
+        }
+      }, 2000);
+      return () => clearTimeout(timer);
     }
-  }, [user, navigate]);
+  }, [session, navigate, toast]);
+
+  const handleUpdatePassword = async (password: string) => {
+    const result = await updatePassword(password);
+    if (!result.error) {
+      // Redirect to dashboard after success
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000);
+    }
+    return result;
+  };
 
   const handleSuccess = (message: string) => {
     toast({
@@ -45,12 +69,12 @@ const Auth = () => {
             <span className="font-display text-3xl font-bold">Clubly</span>
           </div>
           <h1 className="font-display text-5xl font-bold mb-6 leading-tight">
-            Where real
+            Secure your
             <br />
-            <span className="text-primary">communities</span> meet
+            <span className="text-primary">account</span>
           </h1>
           <p className="text-xl text-background/70 max-w-md leading-relaxed">
-            Join thousands building meaningful connections through clubs and events.
+            Create a strong password to keep your Clubly account safe and secure.
           </p>
         </div>
 
@@ -69,10 +93,8 @@ const Auth = () => {
           </span>
         </div>
 
-        <AuthForm
-          onSignUp={signUp}
-          onSignIn={signIn}
-          onForgotPassword={resetPassword}
+        <ResetPasswordForm
+          onUpdatePassword={handleUpdatePassword}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           onSuccess={handleSuccess}
@@ -83,4 +105,4 @@ const Auth = () => {
   );
 };
 
-export default Auth;
+export default ResetPassword;
