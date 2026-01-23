@@ -7,6 +7,7 @@ import { AvatarDisplay } from "@/components/AvatarPicker";
 import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface MessagesPanelProps {
   initialFriendId?: string;
@@ -15,6 +16,7 @@ interface MessagesPanelProps {
 
 export const MessagesPanel = ({ initialFriendId, onClose }: MessagesPanelProps) => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const { conversations, totalUnread, getMessages, sendMessage, refetch } = useDirectMessages();
   
   const [selectedFriend, setSelectedFriend] = useState<{
@@ -103,10 +105,45 @@ export const MessagesPanel = ({ initialFriendId, onClose }: MessagesPanelProps) 
   const handleSend = async () => {
     if (!newMessage.trim() || !selectedFriend || sending) return;
 
+    if (!user) {
+      toast({
+        title: "Not authenticated",
+        description: "Please log in to send messages.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSending(true);
-    const { error } = await sendMessage(selectedFriend.id, newMessage.trim());
-    if (!error) {
-      setNewMessage("");
+    const messageContent = newMessage.trim();
+    
+    // Optimistically add message to UI
+    const optimisticMessage: DirectMessage = {
+      id: `temp-${Date.now()}`,
+      sender_id: user.id,
+      receiver_id: selectedFriend.id,
+      content: messageContent,
+      read: false,
+      created_at: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, optimisticMessage]);
+    setNewMessage("");
+    
+    const { error } = await sendMessage(selectedFriend.id, messageContent);
+    if (error) {
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id));
+      setNewMessage(messageContent);
+      console.error("Failed to send message:", error);
+      toast({
+        title: "Failed to send message",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      // Refresh messages to get the real message with proper ID
+      const msgs = await getMessages(selectedFriend.id);
+      setMessages(msgs);
     }
     setSending(false);
   };
