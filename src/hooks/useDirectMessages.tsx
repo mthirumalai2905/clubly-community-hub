@@ -136,21 +136,33 @@ export const useDirectMessages = () => {
   };
 
   const sendMessage = async (receiverId: string, content: string) => {
-    if (!user) return { error: new Error("Not authenticated") };
+    if (!user) {
+      console.error("sendMessage: User not authenticated");
+      return { error: new Error("Not authenticated") };
+    }
+
+    console.log("Sending message to:", receiverId, "content:", content.substring(0, 20));
 
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("direct_messages")
         .insert({
           sender_id: user.id,
           receiver_id: receiverId,
           content,
-        });
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Insert error:", error);
+        throw error;
+      }
 
-      // Create notification
-      await supabase
+      console.log("Message sent successfully:", data?.id);
+
+      // Create notification (don't await - fire and forget)
+      supabase
         .from("notifications")
         .insert({
           user_id: receiverId,
@@ -158,13 +170,18 @@ export const useDirectMessages = () => {
           title: "New Message",
           message: content.substring(0, 50) + (content.length > 50 ? "..." : ""),
           data: { sender_id: user.id },
+        })
+        .then(({ error: notifError }) => {
+          if (notifError) console.error("Notification error:", notifError);
         });
 
-      // Record activity for sending a message
-      await supabase.rpc("record_user_activity");
+      // Record activity for sending a message (don't await)
+      supabase.rpc("record_user_activity").then(({ error: actError }) => {
+        if (actError) console.error("Activity recording error:", actError);
+      });
 
       fetchConversations();
-      return { error: null };
+      return { error: null, data };
     } catch (error) {
       console.error("Error sending message:", error);
       return { error };
